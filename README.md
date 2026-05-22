@@ -23,7 +23,13 @@ The system supports:
 - FastAPI backend access
 - SQL views for validated analytics
 
+<img width="1209" height="595" alt="image" src="https://github.com/user-attachments/assets/88e3f67e-9392-43cc-8c8b-f57179c0f004" />
+
 The system does not let AI reason from raw CSV files directly. The data is cleaned, privacy-protected, validated, and exposed through controlled SQL views and API endpoints.
+
+---
+## Test data set 
+<img width="1197" height="635" alt="image" src="https://github.com/user-attachments/assets/01ed7798-cbfa-4559-a8fc-899a15ca5686" />
 
 ---
 
@@ -40,6 +46,7 @@ FastAPI Backend
     ↓
 Streamlit Dashboard / Ask AI
 ```
+<img width="1248" height="681" alt="image" src="https://github.com/user-attachments/assets/631e3623-9a98-4041-822d-d9209bac8a7f" />
 
 Current MVP uses:
 
@@ -236,7 +243,7 @@ http://localhost:8501
 ---
 
 ## 10. Test Queries in pgAdmin
-
+<img width="1211" height="664" alt="image" src="https://github.com/user-attachments/assets/13afd460-2d05-42e4-87ed-f4a2889faf86" />
 Run these SQL queries in pgAdmin after creating the views.
 
 ### Row-level scoring view
@@ -484,6 +491,8 @@ Streamlit app:  http://localhost:8501
 
 ## 17. Final Note
 
+<img width="1235" height="676" alt="image" src="https://github.com/user-attachments/assets/1165a1f1-a2e8-42cc-9005-095c9fde89c7" />
+
 This project demonstrates a working MVP path from structured student feedback data to privacy-safe analytics and AI-assisted querying.
 
 The main code paths are:
@@ -496,3 +505,4 @@ src/course_eval_ai/agents/text_to_sql_agent.py
 pipelines/scripts/run_sql_views.py
 pipelines/scripts/test_sql_views.py
 ```
+<img width="1257" height="691" alt="image" src="https://github.com/user-attachments/assets/422df57c-1883-4d85-88fd-52a73cf4d616" />
