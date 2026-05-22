@@ -1,0 +1,2270 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Interactive Course Evaluation AI System Architecture</title>
+
+<style>
+  * { box-sizing: border-box; }
+
+  :root {
+    --bg: #f3f6fb;
+    --ink: #111827;
+    --muted: #64748b;
+    --line: #cbd5e1;
+    --card: #ffffff;
+    --blue: #1d4ed8;
+    --sky: #0284c7;
+    --orange: #ea580c;
+    --green: #15803d;
+    --gold: #ca8a04;
+    --purple: #7e22ce;
+    --gray: #334155;
+  }
+
+  body {
+    margin: 0;
+    padding: 24px;
+    font-family: Arial, Helvetica, sans-serif;
+    background: var(--bg);
+    color: var(--ink);
+  }
+
+  .page {
+    max-width: 1500px;
+    margin: 0 auto;
+    background: var(--card);
+    border-radius: 18px;
+    padding: 28px;
+    box-shadow: 0 10px 30px rgba(15, 23, 42, 0.12);
+  }
+
+  .title {
+    text-align: center;
+    font-size: 34px;
+    font-weight: 800;
+    color: #0f172a;
+    margin-bottom: 6px;
+  }
+
+  .subtitle {
+    text-align: center;
+    font-size: 15px;
+    color: var(--muted);
+    margin-bottom: 12px;
+  }
+
+  .click-note {
+    text-align: center;
+    font-size: 13px;
+    color: #475569;
+    margin-bottom: 26px;
+  }
+
+  .click-pill {
+    display: inline-block;
+    padding: 6px 10px;
+    border-radius: 999px;
+    background: #eff6ff;
+    border: 1px solid #bfdbfe;
+    color: #1e40af;
+    font-weight: 800;
+  }
+
+  .flow-row {
+    display: grid;
+    grid-template-columns: 1fr 90px 1fr 90px 1fr;
+    align-items: stretch;
+    gap: 0;
+    margin-bottom: 22px;
+  }
+
+  .arrow {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: #1e293b;
+    font-size: 42px;
+    font-weight: 900;
+  }
+
+  .down-arrow {
+    text-align: center;
+    font-size: 42px;
+    color: #1e293b;
+    font-weight: 900;
+    margin: 8px 0 14px 0;
+  }
+
+  .phase {
+    border-radius: 16px;
+    border: 2px solid #dbeafe;
+    overflow: hidden;
+    background: #ffffff;
+    position: relative;
+  }
+
+  .phase-header {
+    padding: 14px 18px;
+    font-size: 18px;
+    font-weight: 800;
+    color: white;
+    letter-spacing: 0.3px;
+  }
+
+  .blue { background: var(--blue); }
+  .sky { background: var(--sky); }
+  .orange { background: var(--orange); }
+  .green { background: var(--green); }
+  .gold { background: var(--gold); }
+  .purple { background: var(--purple); }
+  .gray { background: var(--gray); }
+
+  .phase-body { padding: 16px; }
+
+  .interactive {
+    cursor: pointer;
+    transition: transform 0.16s ease, box-shadow 0.16s ease, border-color 0.16s ease;
+  }
+
+  .interactive:hover,
+  .interactive:focus {
+    transform: translateY(-2px);
+    box-shadow: 0 12px 26px rgba(15, 23, 42, 0.16);
+    border-color: #60a5fa;
+    outline: none;
+  }
+
+  .interactive::after {
+    content: "Click for details";
+    position: absolute;
+    top: 10px;
+    right: 12px;
+    font-size: 10px;
+    color: #ffffff;
+    background: rgba(15, 23, 42, 0.45);
+    padding: 4px 7px;
+    border-radius: 999px;
+    letter-spacing: 0.2px;
+  }
+
+  .sub-card.interactive::after {
+    content: "Details";
+    color: #334155;
+    background: #e2e8f0;
+    top: 8px;
+    right: 8px;
+  }
+
+  .icons {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 10px;
+  }
+
+  .icon-card {
+    border: 1px solid #cbd5e1;
+    border-radius: 12px;
+    padding: 12px;
+    text-align: center;
+    background: #f8fafc;
+  }
+
+  .icon { font-size: 32px; margin-bottom: 8px; }
+  .icon-title { font-weight: 800; font-size: 14px; margin-bottom: 4px; }
+  .icon-note { font-size: 12px; color: #475569; }
+
+  .mini-list {
+    margin: 0;
+    padding-left: 18px;
+    font-size: 13px;
+    line-height: 1.45;
+  }
+
+  .database {
+    margin-top: 12px;
+    padding: 10px 12px;
+    border-radius: 10px;
+    background: #eef2ff;
+    border: 1px solid #c7d2fe;
+    font-size: 13px;
+    font-weight: 700;
+    color: #3730a3;
+  }
+
+  .full-width { margin-bottom: 22px; }
+  .section-grid { display: grid; gap: 16px; }
+  .bronze-grid { grid-template-columns: repeat(4, 1fr); }
+  .silver-grid { grid-template-columns: 1.25fr 1fr 1fr; }
+  .gold-grid { grid-template-columns: repeat(3, 1fr); }
+  .access-grid { grid-template-columns: repeat(4, 1fr); }
+  .users-grid { grid-template-columns: repeat(4, 1fr); }
+  .controls-grid { grid-template-columns: repeat(5, 1fr); }
+
+  .sub-card {
+    border: 1px solid #cbd5e1;
+    border-radius: 14px;
+    background: #ffffff;
+    padding: 14px;
+    min-height: 100%;
+    position: relative;
+  }
+
+  .sub-title {
+    font-weight: 800;
+    font-size: 15px;
+    margin-bottom: 10px;
+    color: #0f172a;
+    padding-right: 56px;
+  }
+
+  .sub-label {
+    display: inline-block;
+    font-size: 11px;
+    font-weight: 800;
+    color: #ffffff;
+    border-radius: 999px;
+    padding: 4px 8px;
+    margin-bottom: 8px;
+  }
+
+  .label-orange { background: var(--orange); }
+  .label-green { background: var(--green); }
+  .label-blue { background: #2563eb; }
+  .label-purple { background: var(--purple); }
+  .label-gold { background: var(--gold); }
+  .label-gray { background: var(--gray); }
+
+  .table-name {
+    margin-top: 12px;
+    padding: 9px 10px;
+    background: #f1f5f9;
+    border: 1px dashed #94a3b8;
+    border-radius: 10px;
+    font-size: 13px;
+    font-weight: 800;
+    color: #0f172a;
+  }
+
+  .star-schema {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 10px;
+    margin-top: 10px;
+  }
+
+  .dim-box, .fact-box {
+    border-radius: 10px;
+    padding: 10px;
+    border: 1px solid #86efac;
+    background: #f0fdf4;
+    font-size: 12px;
+  }
+
+  .fact-box { grid-column: span 2; background: #ecfdf5; border-color: #22c55e; }
+  .box-title { font-size: 13px; font-weight: 800; color: #14532d; margin-bottom: 6px; }
+  .tiny-list { margin: 0; padding-left: 16px; line-height: 1.45; }
+
+  .vertical-flow {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 8px;
+    font-size: 13px;
+  }
+
+  .flow-box {
+    width: 100%;
+    border-radius: 10px;
+    padding: 10px;
+    background: #f8fafc;
+    border: 1px solid #cbd5e1;
+    font-weight: 700;
+    text-align: center;
+  }
+
+  .flow-down { font-size: 24px; font-weight: 900; color: #475569; }
+
+  .warning-box {
+    margin-top: 16px;
+    border-radius: 12px;
+    padding: 12px;
+    background: #fff7ed;
+    border: 1px solid #fed7aa;
+    color: #9a3412;
+    font-size: 13px;
+    font-weight: 700;
+  }
+
+  .modal-backdrop {
+    position: fixed;
+    inset: 0;
+    background: rgba(15, 23, 42, 0.72);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    z-index: 9999;
+    padding: 28px;
+    opacity: 0;
+    visibility: hidden;
+    pointer-events: none;
+    transition: opacity 0.16s ease, visibility 0.16s ease;
+  }
+
+  .modal-backdrop.open {
+    opacity: 1;
+    visibility: visible;
+    pointer-events: auto;
+  }
+
+  .modal {
+    width: min(980px, 96vw);
+    max-height: 90vh;
+    overflow: hidden;
+    display: flex;
+    flex-direction: column;
+    background: #ffffff;
+    border-radius: 22px;
+    box-shadow: 0 24px 70px rgba(0,0,0,0.32);
+    animation: pop 0.18s ease-out;
+  }
+
+  @keyframes pop {
+    from { transform: scale(0.96); opacity: 0; }
+    to { transform: scale(1); opacity: 1; }
+  }
+
+  .modal-top {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 14px;
+    padding: 20px 24px;
+    color: #ffffff;
+    flex-shrink: 0;
+    position: sticky;
+    top: 0;
+    z-index: 2;
+  }
+
+  .modal-title-wrap { display: flex; align-items: center; gap: 14px; }
+  .modal-icon { font-size: 40px; line-height: 1; }
+  .modal-title { font-size: 24px; font-weight: 900; margin: 0; }
+  .modal-subtitle { font-size: 13px; opacity: 0.9; margin-top: 4px; }
+
+  .close-btn {
+    border: 0;
+    background: rgba(255,255,255,0.18);
+    color: #ffffff;
+    font-size: 28px;
+    font-weight: 900;
+    width: 44px;
+    height: 44px;
+    border-radius: 999px;
+    cursor: pointer;
+  }
+
+  .close-btn:hover { background: rgba(255,255,255,0.28); }
+
+  .modal-body {
+    padding: 24px;
+    overflow-y: auto;
+  }
+
+  .modal-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 16px;
+    margin-top: 16px;
+  }
+
+  .modal-panel {
+    border: 1px solid #e2e8f0;
+    background: #f8fafc;
+    border-radius: 16px;
+    padding: 16px;
+  }
+
+  .modal-panel h3 {
+    margin: 0 0 10px 0;
+    font-size: 15px;
+    color: #0f172a;
+  }
+
+  .modal-panel ul {
+    margin: 0;
+    padding-left: 18px;
+    line-height: 1.55;
+    font-size: 14px;
+    color: #334155;
+  }
+
+  .modal-callout {
+    border-left: 5px solid #2563eb;
+    background: #eff6ff;
+    border-radius: 14px;
+    padding: 14px 16px;
+    font-size: 14px;
+    line-height: 1.55;
+    color: #1e3a8a;
+    font-weight: 700;
+  }
+
+  .modal-flow {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+    align-items: center;
+    margin-top: 14px;
+  }
+
+  .modal-chip {
+    padding: 8px 10px;
+    border-radius: 999px;
+    background: #f1f5f9;
+    border: 1px solid #cbd5e1;
+    font-size: 12px;
+    font-weight: 800;
+    color: #334155;
+  }
+
+  .modal-arrow { color: #64748b; font-weight: 900; }
+
+  .wide { grid-column: 1 / -1; }
+
+  @media (max-width: 1100px) {
+    .flow-row { grid-template-columns: 1fr; gap: 12px; }
+    .arrow { transform: rotate(90deg); }
+    .bronze-grid, .silver-grid, .gold-grid, .access-grid, .users-grid, .controls-grid { grid-template-columns: 1fr 1fr; }
+  }
+
+  @media (max-width: 760px) {
+    body { padding: 12px; }
+    .page { padding: 16px; }
+    .title { font-size: 24px; }
+    .icons, .bronze-grid, .silver-grid, .gold-grid, .access-grid, .users-grid, .controls-grid, .modal-grid { grid-template-columns: 1fr; }
+    .modal { width: 98vw; }
+    .modal-top { align-items: flex-start; }
+  }
+
+
+  .cloud-map {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 13px;
+  background: #ffffff;
+}
+
+.cloud-map th {
+  background: #1e40af;
+  color: #ffffff;
+  padding: 9px;
+  text-align: left;
+  font-weight: 800;
+  border: 1px solid #93c5fd;
+}
+
+.cloud-map td {
+  padding: 9px;
+  border: 1px solid #cbd5e1;
+  color: #334155;
+  vertical-align: top;
+}
+
+.cloud-map tbody tr:nth-child(even) {
+  background: #f8fafc;
+}
+
+/* Repository modal layout */
+.repo-wrap {
+  display: grid;
+  grid-template-columns: 0.9fr 1.25fr;
+  gap: 22px;
+  align-items: stretch;
+}
+
+.repo-tree {
+  background: #050807;
+  color: #9ef06e;
+  border-radius: 18px;
+  padding: 20px;
+  font-family: Consolas, Monaco, monospace;
+  font-size: 14px;
+  line-height: 1.55;
+  box-shadow: inset 0 0 0 1px #1f2937;
+}
+
+.repo-root {
+  font-size: 20px;
+  font-weight: 900;
+  color: #4ade80;
+  margin-bottom: 12px;
+}
+
+.repo-line {
+  white-space: pre;
+}
+
+.repo-folder { color: #86efac; font-weight: 800; }
+.repo-file-red { color: #f87171; font-weight: 800; }
+.repo-file-yellow { color: #fde047; font-weight: 800; }
+.repo-file-blue { color: #60a5fa; font-weight: 800; }
+.repo-file-purple { color: #c084fc; font-weight: 800; }
+.repo-file-orange { color: #fb923c; font-weight: 800; }
+.repo-muted { color: #94a3b8; }
+
+.repo-cards {
+  display: grid;
+  gap: 14px;
+}
+
+.repo-card {
+  border-radius: 16px;
+  padding: 14px 16px;
+  background: #ffffff;
+  border: 1px solid #cbd5e1;
+}
+
+.repo-card h4 {
+  margin: 0 0 8px 0;
+  font-size: 17px;
+  font-weight: 900;
+}
+
+.repo-card p {
+  margin: 0;
+  line-height: 1.45;
+  color: #334155;
+  font-size: 13px;
+}
+
+.repo-card ul {
+  margin: 0;
+  padding-left: 18px;
+  line-height: 1.55;
+  color: #334155;
+  font-size: 13px;
+}
+
+.repo-card-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 8px 20px;
+}
+
+.repo-green { background: #f0fdf4; border-color: #22c55e; }
+.repo-cyan { background: #ecfeff; border-color: #06b6d4; }
+.repo-gold { background: #fffbeb; border-color: #f59e0b; }
+.repo-purple { background: #faf5ff; border-color: #a855f7; }
+.repo-blue { background: #eff6ff; border-color: #3b82f6; }
+.repo-red { background: #fff1f2; border-color: #fb7185; }
+
+.repo-green h4 { color: #166534; }
+.repo-cyan h4 { color: #0e7490; }
+.repo-gold h4 { color: #a16207; }
+.repo-purple h4 { color: #7e22ce; }
+.repo-blue h4 { color: #1d4ed8; }
+.repo-red h4 { color: #be123c; }
+
+.modal-custom-html {
+  padding: 0;
+}
+
+@media (max-width: 900px) {
+  .repo-wrap {
+    grid-template-columns: 1fr;
+  }
+
+  .repo-card-grid {
+    grid-template-columns: 1fr;
+  }
+}
+  @media print {
+    body { background: #ffffff; padding: 0; }
+    .page { box-shadow: none; border-radius: 0; max-width: none; }
+    .interactive::after, .modal-backdrop { display: none !important; }
+  }
+</style>
+</head>
+
+<body>
+<div class="page">
+
+  <div class="title">Course Evaluation AI System Architecture</div>
+  <div class="subtitle">Flat Feedback File → Validated Data → Star Schema → Gold Insights → Controlled AI Answers</div>
+  <div class="click-note"><span class="click-pill">Click any phase or block to open details</span></div>
+
+  <!-- TOP FLOW -->
+  <div class="flow-row">
+    <div class="phase interactive" tabindex="0" role="button" data-modal="sources">
+      <div class="phase-header blue">DATA SOURCES / OPERATIONAL SYSTEMS</div>
+      <div class="phase-body">
+        <div class="icons">
+          <div class="icon-card"><div class="icon">📄</div><div class="icon-title">CSV Files</div><div class="icon-note">Manual upload</div></div>
+          <div class="icon-card"><div class="icon">📊</div><div class="icon-title">Excel Files</div><div class="icon-note">Compatibility source</div></div>
+          <div class="icon-card"><div class="icon">📝</div><div class="icon-title">Survey Exports</div><div class="icon-note">Semester feedback</div></div>
+          <div class="icon-card"><div class="icon">🔌</div><div class="icon-title">Future APIs</div><div class="icon-note">Automated feeds</div></div>
+        </div>
+      </div>
+    </div>
+
+    <div class="arrow">→</div>
+
+    <div class="phase interactive" tabindex="0" role="button" data-modal="mage">
+      <div class="phase-header blue">MAGE AI ORCHESTRATION LAYER</div>
+      <div class="phase-body">
+        <div class="icons">
+          <div class="icon-card"><div class="icon">📅</div><div class="icon-title">Scheduled Runs</div><div class="icon-note">Semester batch</div></div>
+          <div class="icon-card"><div class="icon">⬆️</div><div class="icon-title">Manual Upload</div><div class="icon-note">MVP support</div></div>
+          <div class="icon-card"><div class="icon">⚡</div><div class="icon-title">Event Trigger</div><div class="icon-note">API/event based</div></div>
+          <div class="icon-card"><div class="icon">📍</div><div class="icon-title">Tracking</div><div class="icon-note">Pipeline run ID</div></div>
+        </div>
+      </div>
+    </div>
+
+    <div class="arrow">→</div>
+
+    <div class="phase interactive" tabindex="0" role="button" data-modal="raw">
+      <div class="phase-header sky">PHASE 1: RAW INGESTION</div>
+      <div class="phase-body">
+        <div class="sub-title">Mage Data Loader</div>
+        <ul class="mini-list">
+          <li>Load CSV</li><li>Load Excel</li><li>Load survey export</li><li>Load future API feed</li><li>Add file metadata</li><li>Add pipeline_run_id</li><li>Store original source unchanged</li>
+        </ul>
+        <div class="database">Output: raw_uploaded_files</div>
+      </div>
+    </div>
+  </div>
+
+  <div class="down-arrow">↓</div>
+
+  <!-- BRONZE -->
+  <div class="phase full-width interactive" tabindex="0" role="button" data-modal="bronze">
+    <div class="phase-header orange">PHASE 2: BRONZE LAYER — VALIDATION, CLEANING, PSEUDONYMIZATION, PRIVACY</div>
+    <div class="phase-body">
+      <div class="section-grid bronze-grid">
+        <div class="sub-card interactive" tabindex="0" role="button" data-modal="bronze-cleaning">
+          <span class="sub-label label-orange">2.1</span><div class="sub-title">Validation & Cleaning</div>
+          <ul class="mini-list"><li>Validate required schema fields</li><li>Standardize column names</li><li>Standardize text fields</li><li>Convert i1-i7 and c1-c5 to numeric</li><li>Preserve skipped ratings as NULL</li><li>Validate Likert scale 1-5</li><li>Flag data-quality issues</li></ul>
+          <div class="table-name">bronze_cleaned_feedback</div>
+        </div>
+        <div class="sub-card interactive" tabindex="0" role="button" data-modal="bronze-identity">
+          <span class="sub-label label-orange">2.2</span><div class="sub-title">Identity Protection</div>
+          <ul class="mini-list"><li>Use iBSUID + InstructorName as source</li><li>Generate HMAC-SHA256 alias</li><li>Create stable instructor pseudonym</li><li>Remove raw identifiers</li><li>Store mapping separately</li><li>Do not expose to AI/RAG</li></ul>
+          <div class="table-name">bronze_identity_protected_evaluations</div><div class="table-name">bronze_instructor_alias_map</div>
+        </div>
+        <div class="sub-card interactive" tabindex="0" role="button" data-modal="bronze-comments">
+          <span class="sub-label label-orange">2.3</span><div class="sub-title">Comment Privacy Preprocessing</div>
+          <ul class="mini-list"><li>Separate instructor/course comments</li><li>Create comment queue</li><li>Detect PII using Presidio</li><li>Fallback regex redaction</li><li>Redact sensitive values</li><li>Store cleaned comments separately</li></ul>
+          <div class="table-name">bronze_comment_queue</div><div class="table-name">bronze_redacted_comments</div>
+        </div>
+        <div class="sub-card interactive" tabindex="0" role="button" data-modal="bronze-final">
+          <span class="sub-label label-orange">2.4</span><div class="sub-title">Bronze Final Table</div>
+          <ul class="mini-list"><li>Merge cleaned ratings</li><li>Merge instructor aliases</li><li>Merge redacted comments if available</li><li>Remove raw identities</li><li>Create privacy-safe flat table</li></ul>
+          <div class="table-name">bronze_cleaned_data</div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="down-arrow">↓</div>
+
+  <!-- SILVER -->
+  <div class="phase full-width interactive" tabindex="0" role="button" data-modal="silver">
+    <div class="phase-header green">PHASE 3: SILVER LAYER — STAR SCHEMA + AI-READY PROCESSING</div>
+    <div class="phase-body">
+      <div class="section-grid silver-grid">
+        <div class="sub-card interactive" tabindex="0" role="button" data-modal="silver-star">
+          <span class="sub-label label-green">PATH A</span><div class="sub-title">Structured Ratings Path — Star Schema</div>
+          <div class="star-schema">
+            <div class="dim-box"><div class="box-title">silver.dim_course</div><ul class="tiny-list"><li>course_key</li><li>CourseIdentifier</li><li>CourseTitle</li><li>AlternateIdentifier</li></ul></div>
+            <div class="dim-box"><div class="box-title">silver.dim_instructor</div><ul class="tiny-list"><li>instructor_key</li><li>Instructor_alias</li><li>InstructorType</li></ul></div>
+            <div class="dim-box"><div class="box-title">silver.dim_session</div><ul class="tiny-list"><li>session_key</li><li>SessionName</li></ul></div>
+            <div class="dim-box"><div class="box-title">silver.dim_delivery</div><ul class="tiny-list"><li>delivery_key</li><li>DeliveryCode</li><li>CampusCode</li></ul></div>
+            <div class="dim-box"><div class="box-title">silver.dim_org</div><ul class="tiny-list"><li>org_key</li><li>Department</li><li>College</li></ul></div>
+            <div class="fact-box"><div class="box-title">silver.fact_evaluation_response</div><ul class="tiny-list"><li>response_id</li><li>FKs to all dimensions</li><li>i1-i7 instructor rating facts</li><li>c1-c5 course design rating facts</li></ul></div>
+          </div>
+          <div class="table-name">silver_structured_metrics_input</div>
+        </div>
+        <div class="sub-card interactive" tabindex="0" role="button" data-modal="silver-comment-values">
+          <span class="sub-label label-green">PATH B</span><div class="sub-title">Comment-to-Measurable-Values Path</div>
+          <div class="vertical-flow"><div class="flow-box">bronze_redacted_comments</div><div class="flow-down">↓</div><div class="flow-box">Generate Comment Features</div><div class="flow-down">↓</div><div class="flow-box">sentiment<br/>topic_tag<br/>severity<br/>recommendation<br/>review_required</div><div class="flow-down">↓</div><div class="flow-box">silver_comment_insights</div></div>
+        </div>
+        <div class="sub-card interactive" tabindex="0" role="button" data-modal="silver-rag">
+          <span class="sub-label label-green">PATH C</span><div class="sub-title">RAG Path</div>
+          <div class="vertical-flow"><div class="flow-box">bronze_redacted_comments</div><div class="flow-down">↓</div><div class="flow-box">Chunking</div><div class="flow-down">↓</div><div class="flow-box">Embedding Model</div><div class="flow-down">↓</div><div class="flow-box">Vector Storage</div><div class="flow-down">↓</div><div class="flow-box">Retrieval + Prompt Template</div><div class="flow-down">↓</div><div class="flow-box">Grounded Response Generation</div></div>
+        </div>
+      </div>
+      <div class="warning-box">MVP note: comments are stripped in the current sample, so MVP focuses on structured ratings and Star Schema. Comment AI/RAG is production path.</div>
+    </div>
+  </div>
+
+  <div class="down-arrow">↓</div>
+
+  <!-- GOLD -->
+  <div class="phase full-width interactive" tabindex="0" role="button" data-modal="gold">
+    <div class="phase-header gold">PHASE 4: GOLD LAYER — DECISION INSIGHT OUTPUTS</div>
+    <div class="phase-body">
+      <div class="section-grid gold-grid">
+        <div class="sub-card interactive" tabindex="0" role="button" data-modal="gold-structured"><span class="sub-label label-gold">STRUCTURED OUTPUTS</span><ul class="mini-list"><li>gold_course_performance</li><li>gold_instructor_performance</li><li>gold_department_performance</li><li>gold_college_performance</li><li>gold_course_alerts</li></ul></div>
+        <div class="sub-card interactive" tabindex="0" role="button" data-modal="gold-comments"><span class="sub-label label-gold">COMMENT OUTPUTS</span><ul class="mini-list"><li>gold_sentiment_summary</li><li>gold_topic_summary</li><li>gold_recommendation_summary</li></ul></div>
+        <div class="sub-card interactive" tabindex="0" role="button" data-modal="gold-ai"><span class="sub-label label-gold">AI INSIGHT OUTPUTS</span><ul class="mini-list"><li>gold_course_health</li><li>gold_curriculum_review_candidates</li><li>gold_instructor_course_fit</li><li>gold_new_course_instructor_candidates</li><li>gold_low_confidence_results</li></ul></div>
+      </div>
+    </div>
+  </div>
+
+  <div class="down-arrow">↓</div>
+
+  <!-- ACCESS + AI INTEGRATION LAYER -->
+  <div class="phase full-width interactive" tabindex="0" role="button" data-modal="access">
+    <div class="phase-header purple">ACCESS + AI INTEGRATION LAYER</div>
+    <div class="phase-body">
+      <div class="section-grid access-grid">
+
+        <div class="sub-card interactive" tabindex="0" role="button" data-modal="fastapi-layer">
+          <span class="sub-label label-purple">FASTAPI</span>
+          <div class="sub-title">Backend API Layer</div>
+          <ul class="mini-list">
+            <li>Exposes trusted analytics endpoints</li>
+            <li>Reads from PostgreSQL views/tables</li>
+            <li>Supports dashboard, BI tools, and AI agents</li>
+            <li>Returns JSON responses</li>
+          </ul>
+        </div>
+
+        <div class="sub-card interactive" tabindex="0" role="button" data-modal="text-to-sql-agent">
+          <span class="sub-label label-purple">TEXT-TO-SQL</span>
+          <div class="sub-title">Text-to-SQL Agent</div>
+          <ul class="mini-list">
+            <li>Converts user questions into SQL</li>
+            <li>Uses approved schema context only</li>
+            <li>Runs SELECT-only queries</li>
+            <li>Blocks unsafe SQL and restricted tables</li>
+          </ul>
+        </div>
+
+        <div class="sub-card interactive" tabindex="0" role="button" data-modal="ai-agent-layer">
+          <span class="sub-label label-purple">AI AGENTS</span>
+          <div class="sub-title">AI Agent Integration</div>
+          <ul class="mini-list">
+            <li>Routes user questions</li>
+            <li>Calls approved tools/views</li>
+            <li>Summarizes results with evidence</li>
+            <li>Prevents raw-data hallucination</li>
+          </ul>
+        </div>
+
+        <div class="sub-card interactive" tabindex="0" role="button" data-modal="streamlit-ai-dashboard">
+          <span class="sub-label label-purple">DASHBOARD AI</span>
+          <div class="sub-title">Streamlit + Ask AI</div>
+          <ul class="mini-list">
+            <li>Interactive dashboard</li>
+            <li>Ask AI inside dashboard</li>
+            <li>Uses backend/agent outputs</li>
+            <li>Explains current dashboard data</li>
+          </ul>
+        </div>
+
+      </div>
+    </div>
+  </div>
+
+  <div class="down-arrow">↓</div>
+
+
+  <!-- END USERS / DECISION OWNERS -->
+  <div class="phase full-width interactive" tabindex="0" role="button" data-modal="users">
+    <div class="phase-header blue">END USERS / DECISION OWNERS</div>
+    <div class="phase-body">
+      <div class="section-grid users-grid">
+
+        <div class="sub-card interactive" tabindex="0" role="button" data-modal="user-faculty">
+          <span class="sub-label label-blue">FACULTY</span>
+          <div class="sub-title">Instructor Improvement View</div>
+          <ul class="mini-list">
+            <li>Own course feedback only</li>
+            <li>Instructor rating trends</li>
+            <li>Course-design feedback context</li>
+            <li>Actionable improvement guidance</li>
+          </ul>
+        </div>
+
+        <div class="sub-card interactive" tabindex="0" role="button" data-modal="user-chairs">
+          <span class="sub-label label-blue">DEPARTMENT CHAIRS</span>
+          <div class="sub-title">Department Decision View</div>
+          <ul class="mini-list">
+            <li>Course health by department</li>
+            <li>Curriculum review candidates</li>
+            <li>Instructor-course fit</li>
+            <li>Low-confidence / low-response flags</li>
+          </ul>
+        </div>
+
+        <div class="sub-card interactive" tabindex="0" role="button" data-modal="user-deans">
+          <span class="sub-label label-blue">DEANS</span>
+          <div class="sub-title">College Strategy View</div>
+          <ul class="mini-list">
+            <li>Cross-department patterns</li>
+            <li>Program-level course quality</li>
+            <li>New course planning support</li>
+            <li>Resource and staffing signals</li>
+          </ul>
+        </div>
+
+        <div class="sub-card interactive" tabindex="0" role="button" data-modal="user-admins">
+          <span class="sub-label label-blue">ADMIN / IR</span>
+          <div class="sub-title">Institutional Oversight View</div>
+          <ul class="mini-list">
+            <li>University-wide feedback trends</li>
+            <li>Data quality monitoring</li>
+            <li>Privacy and access controls</li>
+            <li>Pipeline audit and reporting</li>
+          </ul>
+        </div>
+
+      </div>
+    </div>
+  </div>
+
+  <!-- PRODUCTION CONTROLS -->
+  <div class="phase full-width interactive" tabindex="0" role="button" data-modal="controls">
+    <div class="phase-header gray">PHASE 5: PRODUCTION CONTROLS</div>
+    <div class="phase-body">
+      <div class="section-grid controls-grid">
+        <div class="sub-card interactive" tabindex="0" role="button" data-modal="control-audit"><span class="sub-label label-gray">pipeline_audit_log</span><ul class="mini-list"><li>pipeline_run_id</li><li>source_file_name</li><li>source_system</li><li>row_count_raw/bronze/silver/gold</li></ul></div>
+        <div class="sub-card interactive" tabindex="0" role="button" data-modal="control-quality"><span class="sub-label label-gray">pipeline_quality_report</span><ul class="mini-list"><li>missing columns</li><li>invalid ratings</li><li>duplicates</li><li>low samples</li><li>privacy risk count</li></ul></div>
+        <div class="sub-card interactive" tabindex="0" role="button" data-modal="control-failure"><span class="sub-label label-gray">pipeline_failure_alerts</span><ul class="mini-list"><li>failed_stage</li><li>error_message</li><li>failed_at</li><li>severity</li><li>notification_status</li></ul></div>
+        <div class="sub-card interactive" tabindex="0" role="button" data-modal="control-backfill"><span class="sub-label label-gray">Backfills</span><ul class="mini-list"><li>Rerun by source file</li><li>Rerun by semester</li><li>Rerun by pipeline_run_id</li></ul></div>
+        <div class="sub-card interactive" tabindex="0" role="button" data-modal="control-deploy"><span class="sub-label label-gray">Deployment</span><ul class="mini-list"><li>Docker for MVP</li><li>Kubernetes for production</li><li>Secrets manager</li><li>RBAC</li><li>Monitoring and alerting</li></ul></div>
+      </div>
+    </div>
+  </div>
+
+</div>
+
+<div class="modal-backdrop" id="modalBackdrop" aria-hidden="true">
+  <div class="modal" role="dialog" aria-modal="true" aria-labelledby="modalTitle">
+    <div class="modal-top" id="modalTop">
+      <div class="modal-title-wrap">
+        <div class="modal-icon" id="modalIcon">ℹ️</div>
+        <div>
+          <h2 class="modal-title" id="modalTitle">Details</h2>
+          <div class="modal-subtitle" id="modalSubtitle"></div>
+        </div>
+      </div>
+      <button class="close-btn" id="closeModal" aria-label="Close dialog">×</button>
+    </div>
+    <div class="modal-body" id="modalBody"></div>
+  </div>
+</div>
+
+<script>
+const details = {
+  sources: {
+    color: 'var(--blue)', icon: '🗂️', title: 'Data Sources / Operational Systems', subtitle: 'Where the course evaluation file comes from.',
+    callout: 'The source format is not the product. CSV, Excel, survey export, or future API feed all enter the same governed pipeline.',
+    flow: ['CSV / Excel', 'Survey Export', 'Future API Feed', 'Raw Ingestion'],
+    panels: [
+      ['Inputs', ['CSV files for MVP manual upload', 'Excel files for compatibility', 'Survey exports from semester feedback tools', 'Future API feeds for automation']],
+      ['Design Rule', ['Do not let the AI read random files directly', 'Normalize every input into the same pipeline', 'Track source system and file metadata from the first step']]
+    ]
+  },
+mage: {
+    color: 'var(--blue)',
+    icon: '🧠',
+    title: 'Mage AI Orchestration Layer',
+    subtitle: 'MVP orchestration layer running inside Docker.',
+    callout: 'Mage AI is used in the MVP to orchestrate the Raw → Bronze → Silver → Gold pipeline. In production, the same orchestration pattern can be moved to AWS, Google Cloud, or Azure services.',
+    flow: [
+      'Docker Environment',
+      'Mage AI',
+      'Raw Ingestion',
+      'Bronze Processing',
+      'Silver Star Schema',
+      'Gold Insight Views'
+    ],
+    panels: [
+      [
+        'MVP / Local Setup',
+        [
+          'Docker runs the local environment',
+          'Mage AI runs as the pipeline orchestration service',
+          'PostgreSQL stores pipeline outputs',
+          'Local files / mounted folders store CSV and Excel inputs',
+          'SQL views support structured analytics'
+        ]
+      ],
+      [
+        'Why Mage AI for MVP',
+        [
+          'Visual pipeline orchestration',
+          'Python-based transformation blocks',
+          'Easy manual trigger for demo',
+          'Supports future scheduled runs',
+          'Clear Raw, Bronze, Silver, Gold pipeline separation'
+        ]
+      ],
+      [
+        'Current Stepup',
+        [
+          '<table class="cloud-map"><thead><tr><th>Layer</th><th>Tool Used</th><th>Purpose</th></tr></thead><tbody><tr><td>Environment</td><td>Docker</td><td>Runs local MVP services</td></tr><tr><td>Pipeline Orchestration</td><td>Mage AI</td><td>Controls Raw → Bronze → Silver → Gold pipeline</td></tr><tr><td>Storage</td><td>PostgreSQL / Local Files</td><td>Stores source files and pipeline outputs</td></tr><tr><td>Analytics</td><td>SQL Views</td><td>Creates structured metrics and insight outputs</td></tr></tbody></table>'
+        ]
+      ],
+      [
+        'Production Cloud Mapping',
+        [
+          '<table class="cloud-map"><thead><tr><th>Environment</th><th>Pipeline Orchestration</th><th>Storage</th><th>Analytics</th></tr></thead><tbody><tr><td>MVP / Local</td><td>Mage AI</td><td>PostgreSQL / local files</td><td>SQL views</td></tr><tr><td>AWS</td><td>AWS Glue / Step Functions</td><td>S3</td><td>Athena / Redshift</td></tr><tr><td>Google Cloud</td><td>Cloud Composer / Dataflow</td><td>Cloud Storage</td><td>BigQuery</td></tr><tr><td>Azure</td><td>Azure Data Factory</td><td>ADLS Gen2</td><td>Synapse / Fabric</td></tr></tbody></table>'
+        ]
+      ]
+    ]
+  },
+raw: {
+  color: 'var(--sky)',
+  icon: '📁',
+  title: 'Phase 1: Raw Ingestion',
+  subtitle: 'Load the original feedback file and store it unchanged.',
+  callout: 'In Phase 1, I loaded the source course evaluation file into the pipeline and stored the original data without cleaning or modifying it. This keeps the raw input available for audit, debugging, and reruns.',
+  flow: [
+    'CSV / Excel Source File',
+    'Mage Data Loader',
+    'Read File with Pandas',
+    'Add Ingestion Metadata',
+    'Save to PostgreSQL',
+    'raw_uploaded_files'
+  ],
+  panels: [
+    [
+      'What We Did',
+      [
+        'Loaded the original course evaluation file into Mage AI',
+        'Supported CSV and Excel input formats',
+        'Used pandas to read the file',
+        'Did not clean, transform, or validate ratings in this phase',
+        'Stored the raw dataset exactly as received'
+      ]
+    ],
+    [
+      'Metadata Added',
+      [
+        '_raw_file_name',
+        '_raw_file_path',
+        '_ingested_at_utc',
+        '_pipeline_run_id',
+        '_source_system'
+      ]
+    ],
+    [
+      'Current MVP Setup',
+      [
+        '<table class="cloud-map"><thead><tr><th>Layer</th><th>Tool Used</th><th>Purpose</th></tr></thead><tbody><tr><td>Environment</td><td>Docker</td><td>Runs Mage AI and PostgreSQL locally</td></tr><tr><td>Orchestration</td><td>Mage AI</td><td>Runs the raw ingestion block</td></tr><tr><td>File Processing</td><td>Python / pandas</td><td>Reads CSV or Excel into a dataframe</td></tr><tr><td>Storage</td><td>PostgreSQL</td><td>Stores the unchanged raw table</td></tr><tr><td>Output Table</td><td>raw_uploaded_files</td><td>Original source data with ingestion metadata</td></tr></tbody></table>'
+      ]
+    ],
+    [
+      'Why This Phase Exists',
+      [
+        'Keeps an unchanged copy of the source file',
+        'Allows reruns if later logic changes',
+        'Supports debugging when downstream values look wrong',
+        'Creates traceability from final insights back to the original upload',
+        'Prevents cleaning logic from destroying the original evidence'
+      ]
+    ]
+  ]
+},
+  bronze: {
+    color: 'var(--orange)', icon: '🧹', title: 'Phase 2: Bronze Layer', subtitle: 'Cleaned, validated, privacy-safe flat table.',
+    callout: 'Bronze stays flat because it mirrors the cleaned source file. It is a staging layer, not the final AI reasoning model.',
+    flow: ['raw_uploaded_files', 'Validate + Clean', 'Alias Instructor', 'Redact Comments', 'bronze_cleaned_data'],
+    panels: [
+      ['Main Outputs', ['bronze_cleaned_feedback', 'bronze_identity_protected_evaluations', 'bronze_instructor_alias_map', 'bronze_comment_queue', 'bronze_redacted_comments', 'bronze_cleaned_data']],
+      ['Rule', ['Ratings become numeric', 'Missing ratings stay NULL, not 0', 'InstructorName and iBSUID are removed from AI-facing data', 'Restricted mapping is never exposed to AI']]
+    ]
+  },
+  'bronze-cleaning': {
+  color: 'var(--orange)',
+  icon: '✅',
+  title: 'Bronze 2.1: Validation & Cleaning',
+  subtitle: 'Validate schema, clean fields, and preserve rating integrity.',
+  callout: 'In this step, I checked whether the source file was structurally usable before sending it to privacy protection, Star Schema modeling, or AI. I cleaned and validated the data, but I did not delete rows unless they were truly invalid.',
+  flow: [
+    'Raw Uploaded File',
+    'Schema Validation',
+    'Text Standardization',
+    'Rating Type Conversion',
+    'Likert Range Validation',
+    'Data Quality Flags',
+    'bronze_cleaned_feedback'
+  ],
+  panels: [
+    [
+      'What We Did',
+      [
+        'Validated that all required columns exist',
+        'Standardized text fields by trimming extra spaces',
+        'Converted blank strings, "nan", and "None" style values into NULL',
+        'Converted i1-i7 instructor rating fields to numeric',
+        'Converted c1-c5 course rating fields to numeric',
+        'Preserved skipped answers as NULL instead of changing them to 0',
+        'Validated all rating values against the 1-5 Likert scale',
+        'Converted invalid or out-of-range rating values to NULL',
+        'Added row-level data-quality fields for missing ratings and validation status'
+      ]
+    ],
+    [
+      'Validation Results',
+      [
+        '<table class="cloud-map"><thead><tr><th>Check</th><th>Result</th></tr></thead><tbody><tr><td>Input shape</td><td>224 rows × 32 columns</td></tr><tr><td>Schema validation</td><td>Passed</td></tr><tr><td>Output shape</td><td>224 rows × 35 columns</td></tr><tr><td>Invalid non-numeric ratings</td><td>0</td></tr><tr><td>Out-of-range ratings</td><td>0</td></tr><tr><td>Rows with at least one missing rating</td><td>3</td></tr></tbody></table>'
+      ]
+    ],
+    [
+      'Missing Data Observed',
+      [
+        '<table class="cloud-map"><thead><tr><th>Field</th><th>Missing Count</th><th>Decision</th></tr></thead><tbody><tr><td>LocationCode</td><td>224</td><td>Not useful for MVP; kept out of final Bronze table</td></tr><tr><td>NumberCode</td><td>222</td><td>Mostly empty; kept out of final Bronze table</td></tr><tr><td>itxt</td><td>67</td><td>Comment field; privacy/RAG production path</td></tr><tr><td>ctxt</td><td>103</td><td>Comment field; privacy/RAG production path</td></tr><tr><td>i4, i5, i6, c4, c5</td><td>1 each</td><td>Valid skipped responses; preserved as NULL</td></tr></tbody></table>'
+      ]
+    ],
+    [
+      'Why We Did Not Remove Duplicates',
+      [
+        'Each row represents an evaluation response, not a unique course or instructor record',
+        'Multiple rows for the same course are expected because many students evaluate the same course',
+        'Multiple rows for the same instructor are expected because one instructor can teach multiple courses or receive many evaluations',
+        'Removing duplicates based on course, instructor, or department would destroy valid student responses',
+        'Deduplication should only happen if there is a true response-level identifier or row hash proving the exact same response was loaded twice',
+        'For this MVP, no duplicate removal was applied because the goal was to preserve all valid evaluation responses'
+      ]
+    ],
+    [
+      'Why This Step Matters',
+      [
+        'Prevents bad data from entering Bronze final, Silver Star Schema, or AI layers',
+        'Keeps skipped ratings from being incorrectly treated as negative feedback',
+        'Protects metric accuracy before calculating instructor and course averages',
+        'Creates a clean structured input for identity protection and later modeling',
+        'Makes the pipeline auditable because quality issues are counted instead of silently ignored'
+      ]
+    ]
+  ]
+},
+  'bronze-identity': {
+  color: 'var(--orange)',
+  icon: '🛡️',
+  title: 'Bronze 2.2: Identity Protection',
+  subtitle: 'Pseudonymize instructor identity before data becomes AI-facing.',
+  callout: 'In this step, I replaced raw instructor identity with a stable alias. The AI-facing dataset keeps Instructor_alias only, while the real instructor mapping is stored separately as a restricted table.',
+  flow: [
+    'bronze_cleaned_feedback',
+    'iBSUID + InstructorName',
+    'HMAC-SHA256 Pseudonymization',
+    'Instructor_alias',
+    'AI-Facing Data + Restricted Mapping'
+  ],
+  panels: [
+    [
+      'What We Took From the Data',
+      [
+        'iBSUID: unique instructor identifier',
+        'InstructorName: instructor name from the source file',
+        'Combined both fields to create a stable identity source',
+        'Used the combined identity source only for alias generation',
+        'Did not keep raw instructor name or ID in the AI-facing output'
+      ]
+    ],
+    [
+      'What We Did',
+      [
+        'Created a stable instructor pseudonym using HMAC-SHA256',
+        'Generated aliases in the format instructor_xxxxxxxxxxxxxxxx',
+        'Used the same secret key so the same instructor gets the same alias across runs',
+        'Replaced raw instructor identity with Instructor_alias',
+        'Dropped iBSUID and InstructorName from the protected evaluation table',
+        'Created a separate restricted mapping table for administrative lookup'
+      ]
+    ],
+    [
+      'Tables Created',
+      [
+        '<table class="cloud-map"><thead><tr><th>Table</th><th>Contains</th><th>Access Level</th></tr></thead><tbody><tr><td>bronze_identity_protected_evaluations</td><td>Course evaluation data with Instructor_alias instead of raw identity</td><td>AI-facing / analytics-safe</td></tr><tr><td>bronze_instructor_alias_map</td><td>Instructor_alias, iBSUID, InstructorName</td><td>Restricted administrative access only</td></tr></tbody></table>'
+      ]
+    ],
+    [
+      'Security Controls',
+      [
+        'The alias map is stored separately from the AI-facing evaluation data',
+        'The alias map is not exposed to Text-to-SQL',
+        'The alias map is not exposed to RAG',
+        'The alias map is not used in dashboard or BI outputs',
+        'Only privacy-safe Instructor_alias is sent forward into Bronze final, Silver, Gold, and AI layers',
+        'In production, the HMAC secret key should come from a secrets manager, not hardcoded code',
+        'Access to bronze_instructor_alias_map should be controlled using database roles/RBAC'
+      ]
+    ],
+    [
+      'Why We Did This',
+      [
+        'Student feedback is sensitive and can affect faculty reputation',
+        'AI does not need raw instructor names to calculate insights',
+        'Instructor aliases allow professor-course matching without exposing identity',
+        'Stable pseudonyms allow trends across semesters without revealing names',
+        'Keeping the mapping separate supports privacy, auditability, and controlled administrative lookup',
+        'This reduces privacy risk while still preserving analytical value'
+      ]
+    ]
+  ]
+},'bronze-comments': {
+  color: 'var(--orange)',
+  icon: '💬',
+  title: 'Bronze 2.3: Comment Privacy Preprocessing',
+  subtitle: 'Separate instructor/course comments and prepare them for safe AI use.',
+  callout: 'Even though the sample dataset has stripped or incomplete comments, I designed the comment privacy path for production. Raw comments should never go directly to AI because they can contain student-identifying information.',
+  flow: [
+    'bronze_identity_protected_evaluations',
+    'Extract itxt + ctxt',
+    'Create Comment Queue',
+    'PII Detection',
+    'Redaction',
+    'bronze_redacted_comments'
+  ],
+  panels: [
+    [
+      'What We Took From the Data',
+      [
+        'itxt: open-ended instructor feedback comment',
+        'ctxt: open-ended course feedback comment',
+        'Instructor_alias for linking comments without exposing raw instructor identity',
+        'SessionName for semester/context',
+        'CourseIdentifier and CourseTitle for course context',
+        'Department and College for organizational context',
+        '_pipeline_run_id and _raw_file_name for traceability'
+      ]
+    ],
+    [
+      'What We Did',
+      [
+        'Separated comments from structured rating fields',
+        'Created one record per instructor comment when itxt exists',
+        'Created one record per course comment when ctxt exists',
+        'Added comment_type to identify instructor_comment or course_comment',
+        'Created a pending comment queue before redaction',
+        'Ran privacy redaction before comments can move to AI/RAG layers',
+        'Stored redacted comments separately from raw comments'
+      ]
+    ],
+    [
+      'Tables Created',
+      [
+        '<table class="cloud-map"><thead><tr><th>Table</th><th>Contains</th><th>Purpose</th></tr></thead><tbody><tr><td>bronze_comment_queue</td><td>Original extracted comments with metadata</td><td>Temporary privacy-processing queue</td></tr><tr><td>bronze_redacted_comments</td><td>Redacted comments with same metadata</td><td>Safe input for future sentiment, topic tagging, and RAG</td></tr></tbody></table>'
+      ]
+    ],
+    [
+      'Redaction Logic',
+      [
+        'Used Microsoft Presidio when available for PII detection and anonymization',
+        'Used fallback regex redaction when Presidio is unavailable',
+        'Redacted email addresses as [EMAIL]',
+        'Redacted phone numbers as [PHONE]',
+        'Redacted long ID-like numbers as [ID_NUMBER]',
+        'Marked comments with privacy_status such as pending_redaction or redacted'
+      ]
+    ],
+    [
+      'MVP Reality',
+      [
+        'The sample dataset does not contain useful open-text comments for full comment AI',
+        'Instructor comments and course comments are incomplete/stripped',
+        'So the MVP does not overclaim sentiment analysis or RAG results',
+        'The pipeline path is still designed so real production comments can be processed safely later'
+      ]
+    ],
+    [
+      'Why We Did This',
+      [
+        'Student comments can accidentally identify students, instructors, assignments, or personal situations',
+        'Raw comments are higher privacy risk than numeric ratings',
+        'AI/RAG should only use redacted comments, never raw comments',
+        'Separating comments from ratings allows structured metrics and text intelligence to follow different safety rules',
+        'This makes future comment-based AI safer and more auditable'
+      ]
+    ]
+  ]
+},'bronze-final': {
+  color: 'var(--orange)',
+  icon: '📦',
+  title: 'Bronze 2.4: Final Bronze Table',
+  subtitle: 'Create the final cleaned, privacy-safe flat table for Silver.',
+  callout: 'This step creates bronze_cleaned_data, the final Bronze output. It keeps only the clean MVP columns needed for analytics and Silver Star Schema modeling.',
+  flow: [
+    'bronze_identity_protected_evaluations',
+    'Select MVP Columns',
+    'Rename instructor_alias',
+    'Remove Raw Identity Fields',
+    'bronze_cleaned_data'
+  ],
+  panels: [
+    [
+      'What We Did',
+      [
+        'Read from bronze_identity_protected_evaluations',
+        'Renamed instructor_alias to Instructor_alias for consistent final output',
+        'Selected only the MVP analytics columns',
+        'Excluded raw instructor name and raw instructor ID',
+        'Excluded mostly empty or unnecessary source columns',
+        'Created the final cleaned Bronze table',
+        'Exported the result to PostgreSQL as bronze_cleaned_data'
+      ]
+    ],
+    [
+      'Final Bronze Columns',
+      [
+        '<table class="cloud-map"><thead><tr><th>Group</th><th>Columns</th></tr></thead><tbody><tr><td>Instructor</td><td>Instructor_alias, InstructorType</td></tr><tr><td>Session</td><td>SessionName</td></tr><tr><td>Course</td><td>CourseIdentifier, CourseTitle, AlternateIdentifier</td></tr><tr><td>Organization</td><td>Department, College</td></tr><tr><td>Delivery</td><td>DeliveryCode, CampusCode</td></tr><tr><td>Instructor Ratings</td><td>i1, i2, i3, i4, i5, i6, i7</td></tr><tr><td>Course Ratings</td><td>c1, c2, c3, c4, c5</td></tr></tbody></table>'
+      ]
+    ],
+    [
+      'Why This Table Exists',
+      [
+        'It is the clean handoff point from Bronze to Silver',
+        'It keeps the dataset flat only until Bronze',
+        'It removes raw identity risk before Silver modeling',
+        'It gives the Silver layer one stable input table',
+        'It avoids sending unnecessary raw source fields forward',
+        'It prepares the data for Star Schema conversion'
+      ]
+    ],
+    [
+      'What We Did Not Keep',
+      [
+        'iBSUID was removed because AI and analytics do not need raw instructor ID',
+        'InstructorName was removed because Instructor_alias replaces raw identity',
+        'LocationCode was not used because it was fully missing in the MVP data',
+        'NumberCode was not used because it was mostly missing',
+        'Raw comments were not used directly because comments require privacy preprocessing first'
+      ]
+    ],
+    [
+      'Next Layer',
+      [
+        'bronze_cleaned_data becomes the source for Silver',
+        'Silver converts this flat table into Star Schema',
+        'Course fields move to dim_course',
+        'Instructor fields move to dim_instructor',
+        'Session fields move to dim_session',
+        'Delivery fields move to dim_delivery',
+        'Department and College move to dim_org',
+        'i1-i7 and c1-c5 move to fact_evaluation_response'
+      ]
+    ]
+  ]
+},
+silver: {
+  color: 'var(--green)',
+  icon: '⭐',
+  title: 'Phase 3: Silver Layer',
+  subtitle: 'Convert flat Bronze data into Star Schema for AI-ready analytics.',
+  callout: 'Until Bronze, the data stays flat because it mirrors the cleaned CSV/Excel file. In Silver, the flat bronze_cleaned_data table becomes a Star Schema: one central fact table connected to dimensions. This gives AI clean structure and reduces hallucination.',
+  flow: [
+    'bronze_cleaned_data',
+    'Schema Selection',
+    'Silver Star Schema',
+    'fact_evaluation_response',
+    'Gold Insight Views'
+  ],
+  panels: [
+    [
+      'Schema Comparison',
+      [
+        '<table class="cloud-map"><thead><tr><th>Schema</th><th>What It Means</th><th>Complexity</th><th>Dashboard Speed</th><th>Good for This Project?</th><th>Why / Why Not</th><th>Best For</th></tr></thead><tbody><tr><td>Flat Table</td><td>One big table with all columns together</td><td>Very Low</td><td>Very Fast</td><td>Good for MVP only</td><td>Good for preserving the original CSV/Excel file, but weak for AI insights because data is repeated and AI may confuse course quality, instructor quality, and department context.</td><td>Simple reports, small datasets</td></tr><tr><td><strong>Star Schema</strong></td><td>One central fact table connected to dimension tables</td><td>Medium</td><td>Very Fast</td><td><strong>Best choice</strong></td><td>Best fit because the main event is one student feedback response, and dimensions describe course, professor, department, college, semester, delivery mode, and questions. This gives AI clean structure and reduces hallucination.</td><td>BI tools, Power BI, Tableau, AI insight layer</td></tr><tr><td>Snowflake Schema</td><td>Star schema but dimensions are further normalized</td><td>High</td><td>Medium / slower joins</td><td>Not best now</td><td>More normalized, but adds too many joins. For this project, it is unnecessary complexity.</td><td>Large warehouses where storage consistency and master-data normalization matter</td></tr><tr><td>Galaxy / Fact Constellation</td><td>Multiple fact tables sharing dimensions</td><td>Very High</td><td>Medium</td><td>Useful later, not needed now</td><td>Useful if we add more fact tables like enrollment, grades, workload, or job outcomes. For the current student feedback file, it is overkill.</td><td>Enterprise analytics across many business processes</td></tr><tr><td>Normalized / 3NF</td><td>Highly relational transactional model</td><td>High</td><td>Slower for analytics</td><td>Bad for AI insight querying</td><td>Good for transactional systems, but not ideal for insight questions because AI/BI would need many joins to answer simple questions.</td><td>Operational systems, applications, transactional apps, student information systems, CRUD systems</td></tr><tr><td>Data Vault</td><td>Raw enterprise history/audit modeling using hubs, links, and satellites</td><td>Very High</td><td>Not dashboard-friendly directly</td><td>Overkill</td><td>Excellent for massive enterprise audit/history tracking, but too complex for this interview/demo and not needed to answer student-feedback insight questions.</td><td>Enterprise data warehouses, long-term auditability, many changing sources</td></tr></tbody></table>'
+      ]
+    ],
+    [
+      'Selected Schema',
+      [
+        'Selected schema: Star Schema',
+        'Bronze remains flat for cleaned source preservation',
+        'Silver becomes the structured AI-ready model',
+        'One central fact table stores evaluation response facts',
+        'Dimension tables store course, instructor, session, delivery, and organization context',
+        'Gold views should be built on top of Silver for AI answers'
+      ]
+    ],
+    [
+      'Silver Star Schema Flow',
+      [
+        '<pre class="arch-code">bronze_cleaned_data\n        ↓\nsilver.dim_course\nsilver.dim_instructor\nsilver.dim_session\nsilver.dim_delivery\nsilver.dim_org\n        ↓\nsilver.fact_evaluation_response</pre>'
+      ]
+    ],
+    [
+      'Star Schema Visual',
+      [
+        '<pre class="arch-code">              dim_course\n                  |\ndim_instructor — fact_evaluation_response — dim_session\n                  |\n            dim_delivery\n                  |\n               dim_org</pre>'
+      ]
+    ],
+    [
+      'Silver Tables',
+      [
+        '<table class="cloud-map"><thead><tr><th>Silver Table</th><th>Purpose</th></tr></thead><tbody><tr><td>silver.dim_course</td><td>Stores course identifier, course title, and alternate identifier</td></tr><tr><td>silver.dim_instructor</td><td>Stores protected instructor alias and instructor type</td></tr><tr><td>silver.dim_session</td><td>Stores semester/session context</td></tr><tr><td>silver.dim_delivery</td><td>Stores delivery mode and campus context</td></tr><tr><td>silver.dim_org</td><td>Stores department and college context</td></tr><tr><td>silver.fact_evaluation_response</td><td>Stores one evaluation response with i1-i7 and c1-c5 rating facts</td></tr></tbody></table>'
+      ]
+    ],
+    [
+      'Why Silver Uses Star Schema',
+      [
+        'AI should not reason from one repeated flat table',
+        'Course quality and instructor quality must stay separated',
+        'Department, college, session, and delivery mode become clean context dimensions',
+        'The model supports course health, instructor-course fit, curriculum review, and new course planning',
+        'The schema is simple enough for BI tools and structured enough for reliable AI querying'
+      ]
+    ]
+  ]
+},
+
+'silver-star': {
+  color: 'var(--green)',
+  icon: '🌟',
+  title: 'Silver Path A: Structured Ratings Path — Star Schema',
+  subtitle: 'Main MVP analytical model for structured student feedback.',
+  callout: 'This is the core Silver layer. The flat Bronze table is converted into a Star Schema so AI and analytics can use clean relationships instead of guessing from one wide table.',
+  flow: [
+    'bronze_cleaned_data',
+    'Extract Dimensions',
+    'Load fact_evaluation_response',
+    'Validate Row Count',
+    'Gold Insight Views'
+  ],
+  panels: [
+    [
+      'Column Mapping',
+      [
+        '<table class="cloud-map"><thead><tr><th>Bronze Column</th><th>Silver Table</th><th>Why</th></tr></thead><tbody><tr><td>Instructor_alias</td><td>dim_instructor</td><td>Protected instructor identity for matching</td></tr><tr><td>InstructorType</td><td>dim_instructor</td><td>Attribute of instructor</td></tr><tr><td>SessionName</td><td>dim_session</td><td>Needed for semester/session trend</td></tr><tr><td>CourseIdentifier</td><td>dim_course</td><td>Course/section identifier</td></tr><tr><td>CourseTitle</td><td>dim_course</td><td>Course name</td></tr><tr><td>AlternateIdentifier</td><td>dim_course</td><td>Helps identify course section/version</td></tr><tr><td>Department</td><td>dim_org</td><td>Needed for department comparison</td></tr><tr><td>College</td><td>dim_org</td><td>Needed for college grouping</td></tr><tr><td>DeliveryCode</td><td>dim_delivery</td><td>Online/lecture/etc. affects instructor-course fit</td></tr><tr><td>CampusCode</td><td>dim_delivery</td><td>Campus context</td></tr><tr><td>i1-i7</td><td>fact_evaluation_response</td><td>Instructor rating facts</td></tr><tr><td>c1-c5</td><td>fact_evaluation_response</td><td>Course/curriculum rating facts</td></tr></tbody></table>'
+      ]
+    ],
+    [
+      'Dimension Tables',
+      [
+        '<table class="cloud-map"><thead><tr><th>Dimension</th><th>Columns</th></tr></thead><tbody><tr><td>silver.dim_course</td><td>course_key, CourseIdentifier, CourseTitle, AlternateIdentifier</td></tr><tr><td>silver.dim_instructor</td><td>instructor_key, Instructor_alias, InstructorType</td></tr><tr><td>silver.dim_session</td><td>session_key, SessionName</td></tr><tr><td>silver.dim_delivery</td><td>delivery_key, DeliveryCode, CampusCode</td></tr><tr><td>silver.dim_org</td><td>org_key, Department, College</td></tr></tbody></table>'
+      ]
+    ],
+    [
+      'Fact Table',
+      [
+        '<table class="cloud-map"><thead><tr><th>Fact Table</th><th>Columns</th><th>Meaning</th></tr></thead><tbody><tr><td>silver.fact_evaluation_response</td><td>response_id</td><td>Unique evaluation response row</td></tr><tr><td>silver.fact_evaluation_response</td><td>course_key, instructor_key, session_key, delivery_key, org_key</td><td>Foreign keys to dimensions</td></tr><tr><td>silver.fact_evaluation_response</td><td>i1, i2, i3, i4, i5, i6, i7</td><td>Instructor rating facts</td></tr><tr><td>silver.fact_evaluation_response</td><td>c1, c2, c3, c4, c5</td><td>Course/curriculum rating facts</td></tr></tbody></table>'
+      ]
+    ],
+    [
+      'Why Fact Table?',
+      [
+        'The main event is one student feedback response',
+        'Each response contains instructor rating facts i1-i7',
+        'Each response contains course/curriculum rating facts c1-c5',
+        'The fact table preserves response-level granularity',
+        'Aggregations can later calculate course health, professor-course fit, and review candidates'
+      ]
+    ],
+    [
+      'Why Dimensions?',
+      [
+        'Course details should not be repeated in every analytical output',
+        'Instructor alias and instructor type become clean instructor context',
+        'Session supports future trend analysis',
+        'Delivery and campus support online/in-person comparison',
+        'Department and college support organizational rollups',
+        'Dimensions prevent AI from mixing course quality, professor quality, and department context'
+      ]
+    ],
+    [
+      'Validation After Load',
+      [
+        'fact_evaluation_response row count should match bronze_cleaned_data row count',
+        'Dimension tables should contain distinct course, instructor, session, delivery, and org values',
+        'No raw instructor names or IDs should exist in Silver',
+        'Silver becomes the trusted model used to build Gold views'
+      ]
+    ]
+  ]
+},
+
+'silver-comment-values': {
+  color: 'var(--green)',
+  icon: '📊',
+  title: 'Silver Path B: Comment-to-Measurable Values',
+  subtitle: 'Production path for turning redacted comments into structured signals.',
+  callout: 'This path is not the main MVP result because sample comments are stripped/incomplete. In production, redacted comments can become measurable features like sentiment, topics, severity, and recommendations.',
+  flow: [
+    'bronze_redacted_comments',
+    'Comment Feature Extraction',
+    'sentiment / topic / severity',
+    'silver_comment_insights',
+    'Gold Comment Summaries'
+  ],
+  panels: [
+    [
+      'Input',
+      [
+        'Source table: bronze_redacted_comments',
+        'Uses only redacted comments',
+        'Does not use raw comments',
+        'Does not use instructor identity mapping',
+        'Linked by Instructor_alias, course, session, department, and college metadata'
+      ]
+    ],
+    [
+      'Generated Fields',
+      [
+        '<table class="cloud-map"><thead><tr><th>Field</th><th>Meaning</th></tr></thead><tbody><tr><td>sentiment</td><td>Positive, neutral, or negative tone</td></tr><tr><td>topic_tag</td><td>Main feedback theme such as pacing, assignments, communication, grading, workload</td></tr><tr><td>severity</td><td>How serious the issue appears</td></tr><tr><td>recommendation</td><td>Suggested action extracted from feedback pattern</td></tr><tr><td>review_required</td><td>Flag showing whether human review is needed</td></tr></tbody></table>'
+      ]
+    ],
+    [
+      'Output',
+      [
+        'silver_comment_insights',
+        'Structured comment features',
+        'Can feed Gold sentiment summary',
+        'Can support course health explanations',
+        'Can support curriculum review themes'
+      ]
+    ],
+    [
+      'Guardrail',
+      [
+        'No raw comments are sent to the AI layer',
+        'No student-identifying details should move forward',
+        'Comment intelligence should support decisions, not replace structured rating metrics',
+        'Comment AI should be clearly marked as production extension if comments are not available in MVP'
+      ]
+    ]
+  ]
+},
+
+'silver-rag': {
+  color: 'var(--green)',
+  icon: '🔎',
+  title: 'Silver Path C: RAG Path',
+  subtitle: 'Production path for grounded question answering over redacted comments.',
+  callout: 'RAG is only for safe text explanation over redacted comments. It should not replace deterministic metrics for numeric decisions.',
+  flow: [
+    'bronze_redacted_comments',
+    'Chunking',
+    'Embedding Model',
+    'Vector Store',
+    'Retrieval',
+    'Grounded Response Generation'
+  ],
+  panels: [
+    [
+      'RAG Components',
+      [
+        '<table class="cloud-map"><thead><tr><th>Step</th><th>Purpose</th></tr></thead><tbody><tr><td>Chunking</td><td>Break redacted comments into searchable pieces</td></tr><tr><td>Embedding Model</td><td>Convert text chunks into vectors</td></tr><tr><td>Vector Storage</td><td>Store searchable embeddings</td></tr><tr><td>Retrieval</td><td>Find relevant redacted comment chunks for a question</td></tr><tr><td>Prompt Template</td><td>Force grounded answers from retrieved context</td></tr><tr><td>Response Generation</td><td>Generate explanation based only on retrieved safe context</td></tr></tbody></table>'
+      ]
+    ],
+    [
+      'Output',
+      [
+        'silver_comment_embeddings',
+        'Embeddings for redacted comments only',
+        'Used for future AI explanation over open-ended feedback',
+        'Not used for MVP if comments are stripped'
+      ]
+    ],
+    [
+      'Guardrails',
+      [
+        'RAG uses redacted comments only',
+        'RAG does not access raw comments',
+        'RAG does not access bronze_instructor_alias_map',
+        'RAG should cite or reference retrieved safe chunks internally',
+        'RAG answers should include limitations when comment data is incomplete'
+      ]
+    ],
+    [
+      'When to Use RAG',
+      [
+        'Use RAG for explaining recurring themes in comments',
+        'Use RAG for summarizing student concerns after privacy redaction',
+        'Do not use RAG to calculate course ratings',
+        'Do not use RAG to rank professors without structured metrics',
+        'Numeric decisions should come from Silver/Gold structured views'
+      ]
+    ]
+  ]
+},
+
+'fastapi-layer': {
+  color: 'var(--purple)',
+  icon: '🔗',
+  title: 'FastAPI Backend Layer',
+  subtitle: 'Backend API for dashboard, BI tools, and AI agent access.',
+  callout: 'FastAPI exposes trusted PostgreSQL outputs through controlled API endpoints. It separates backend logic from the dashboard and gives BI tools, Streamlit, and AI agents a clean access layer.',
+  flow: [
+    'PostgreSQL Views / Tables',
+    'FastAPI Endpoints',
+    'JSON Response',
+    'Streamlit / BI / AI Agents'
+  ],
+  panels: [
+    [
+      'What We Built',
+      [
+        'Created FastAPI backend service',
+        'Connected FastAPI to PostgreSQL',
+        'Added API health check',
+        'Added course performance endpoint',
+        'Added instructor performance endpoint',
+        'Added department summary endpoint',
+        'Added course alerts endpoint',
+        'Used Swagger UI to test API endpoints'
+      ]
+    ],
+    [
+      'Current MVP Setup',
+      [
+        '<table class="cloud-map"><thead><tr><th>Layer</th><th>Tool</th><th>Role</th></tr></thead><tbody><tr><td>Backend API</td><td>FastAPI</td><td>Serves trusted analytics outputs</td></tr><tr><td>Database</td><td>PostgreSQL</td><td>Stores Bronze/Silver/Gold tables and views</td></tr><tr><td>Server</td><td>Uvicorn</td><td>Runs FastAPI locally</td></tr><tr><td>Testing</td><td>Swagger UI</td><td>Tests API contract and endpoints</td></tr></tbody></table>'
+      ]
+    ],
+    [
+      'Why This Block Exists',
+      [
+        'Keeps dashboard UI separate from backend logic',
+        'Allows Streamlit, Tableau, Power BI, and AI agents to use the same trusted outputs',
+        'Avoids direct raw-table access from user-facing tools',
+        'Makes the system easier to extend beyond one dashboard'
+      ]
+    ]
+  ]
+},
+
+'text-to-sql-agent': {
+  color: 'var(--purple)',
+  icon: '🧠',
+  title: 'Text-to-SQL Agent',
+  subtitle: 'Converts natural-language questions into safe PostgreSQL queries.',
+  callout: 'The Text-to-SQL agent lets users ask questions in plain English, but it is restricted by schema context, allowed tables, SELECT-only rules, and SQL safety checks.',
+  flow: [
+    'User Question',
+    'Schema Context',
+    'LLM Generates SQL',
+    'SQL Safety Check',
+    'PostgreSQL Query',
+    'Result Table'
+  ],
+  panels: [
+    [
+      'What We Built',
+      [
+        'Created text_to_sql_agent.py',
+        'Connected the agent to Gemini',
+        'Provided database schema context to the model',
+        'Generated PostgreSQL SELECT queries only',
+        'Ran SQL through safety checks before execution',
+        'Executed safe SQL using SQLAlchemy',
+        'Returned generated SQL and result dataframe to Streamlit'
+      ]
+    ],
+    [
+      'Safety Rules',
+      [
+        '<table class="cloud-map"><thead><tr><th>Rule</th><th>Purpose</th></tr></thead><tbody><tr><td>SELECT only</td><td>Prevents data modification</td></tr><tr><td>No INSERT / UPDATE / DELETE</td><td>Blocks write operations</td></tr><tr><td>No DROP / ALTER / TRUNCATE</td><td>Blocks destructive schema changes</td></tr><tr><td>No semicolon chaining</td><td>Prevents multi-query injection</td></tr><tr><td>Approved tables only</td><td>Limits model to safe sources</td></tr><tr><td>Restricted tables blocked</td><td>Protects raw, identity, and privacy tables</td></tr></tbody></table>'
+      ]
+    ],
+    [
+      'Blocked Tables',
+      [
+        'raw_uploaded_files',
+        'bronze_cleaned_feedback',
+        'bronze_identity_protected_evaluations',
+        'bronze_instructor_alias_map',
+        'bronze_comment_queue',
+        'bronze_redacted_comments'
+      ]
+    ],
+    [
+      'Why This Block Exists',
+      [
+        'Allows natural-language exploration of course evaluation data',
+        'Keeps answers grounded in PostgreSQL results',
+        'Prevents the model from inventing calculations',
+        'Makes AI behavior explainable by showing generated SQL'
+      ]
+    ]
+  ]
+},
+
+'ai-agent-layer': {
+  color: 'var(--purple)',
+  icon: '🤖',
+  title: 'AI Agent Integration Layer',
+  subtitle: 'Controlled AI reasoning over trusted structured outputs.',
+  callout: 'The AI agent layer does not replace the database. It routes questions, calls approved tools or SQL logic, reads trusted outputs, and explains results with evidence.',
+  flow: [
+    'User Question',
+    'Intent Routing',
+    'Text-to-SQL / Approved Tool',
+    'Trusted Data Output',
+    'AI Explanation'
+  ],
+  panels: [
+    [
+      'What We Added',
+      [
+        'Integrated AI question-answering into the application',
+        'Connected dashboard questions to the Text-to-SQL agent',
+        'Allowed users to ask about courses, instructors, departments, and alerts',
+        'Returned generated SQL for transparency',
+        'Returned result tables for verification',
+        'Kept AI grounded in database outputs'
+      ]
+    ],
+    [
+      'Hallucination Control',
+      [
+        'AI does not read raw CSV directly',
+        'AI does not access instructor identity mapping',
+        'AI does not modify database records',
+        'AI uses approved schema context',
+        'AI output is grounded in SQL results',
+        'Generated SQL is visible for verification'
+      ]
+    ],
+    [
+      'Future Agent Tools',
+      [
+        'evaluate_course_health()',
+        'find_curriculum_review_candidates()',
+        'find_best_professor_for_course()',
+        'recommend_professors_for_new_course()',
+        'compare_course_against_department()',
+        'summarize_redacted_feedback_themes()'
+      ]
+    ]
+  ]
+},
+
+'streamlit-ai-dashboard': {
+  color: 'var(--purple)',
+  icon: '💬',
+  title: 'Streamlit Dashboard + Ask AI',
+  subtitle: 'Interactive dashboard with embedded AI question answering.',
+  callout: 'The Streamlit dashboard is the proof-of-concept interface. It shows metrics visually and lets users ask AI questions about the current course evaluation data.',
+  flow: [
+    'Streamlit Dashboard',
+    'User Filters / Charts',
+    'Ask AI Question',
+    'Text-to-SQL Agent',
+    'SQL Result',
+    'Displayed Answer'
+  ],
+  panels: [
+    [
+      'What We Built',
+      [
+        'Created Streamlit dashboard interface',
+        'Loaded trusted course evaluation data from PostgreSQL',
+        'Added executive summary metrics',
+        'Added course performance views',
+        'Added instructor performance views',
+        'Added department insights',
+        'Added alerts/risk views',
+        'Added Ask AI section inside the dashboard'
+      ]
+    ],
+    [
+      'Ask AI Flow',
+      [
+        '<table class="cloud-map"><thead><tr><th>Step</th><th>Action</th></tr></thead><tbody><tr><td>1</td><td>User types a natural-language question</td></tr><tr><td>2</td><td>Streamlit sends the question to ask_database()</td></tr><tr><td>3</td><td>Text-to-SQL agent generates SQL</td></tr><tr><td>4</td><td>SQL safety checker validates the query</td></tr><tr><td>5</td><td>PostgreSQL returns the result</td></tr><tr><td>6</td><td>Dashboard shows generated SQL and result table</td></tr></tbody></table>'
+      ]
+    ],
+    [
+      'Example Questions',
+      [
+        'Which courses have the lowest course ratings?',
+        'Which instructors have the strongest ratings?',
+        'Which departments have lower course performance?',
+        'Which courses have high instructor rating but low course rating?',
+        'Which courses should be reviewed based on response count and rating?'
+      ]
+    ]
+  ]
+},
+
+gold: {
+    color: 'var(--gold)', icon: '🏆', title: 'Phase 4: Gold Layer', subtitle: 'Decision insight views for users and AI.',
+    callout: 'Gold is where the system answers the real business questions: keep, redesign, match instructor, or flag low confidence.',
+    flow: ['Silver Star Schema', 'Metric Views', 'Decision Views', 'AI / API / Dashboard'],
+    panels: [
+      ['Decision Views', ['gold_course_health', 'gold_curriculum_review_candidates', 'gold_instructor_course_fit', 'gold_new_course_instructor_candidates', 'gold_low_confidence_results']],
+      ['Metrics', ['avg_course_rating', 'avg_instructor_rating', 'response_count', 'rating_gap', 'department baseline', 'confidence level']]
+    ]
+  },
+  'gold-structured': { color: 'var(--gold)', icon: '📈', title: 'Gold Structured Outputs', subtitle: 'Aggregated performance tables.', callout: 'These are useful, but do not make the project sound like only KPI tracking.', flow: ['Silver Fact + Dimensions', 'Aggregations', 'Performance Tables'], panels: [['Tables', ['gold_course_performance', 'gold_instructor_performance', 'gold_department_performance', 'gold_college_performance', 'gold_course_alerts']], ['Use', ['BI dashboards', 'API responses', 'baseline reporting']]] },
+  'gold-comments': { color: 'var(--gold)', icon: '🗣️', title: 'Gold Comment Outputs', subtitle: 'Summaries of redacted feedback.', callout: 'Only active when real comment data exists.', flow: ['silver_comment_insights', 'Summaries', 'Gold comment views'], panels: [['Tables', ['gold_sentiment_summary', 'gold_topic_summary', 'gold_recommendation_summary']], ['Use', ['Find recurring themes', 'Support curriculum review', 'Explain rating patterns']]] },
+  'gold-ai': { color: 'var(--gold)', icon: '🤖', title: 'Gold AI Insight Outputs', subtitle: 'Curated views for AI answers.', callout: 'The AI should query these first, not the raw Bronze table.', flow: ['Gold Views', 'AI Tool Call', 'Evidence-backed Answer'], panels: [['Insight Views', ['gold_course_health', 'gold_curriculum_review_candidates', 'gold_instructor_course_fit', 'gold_new_course_instructor_candidates', 'gold_low_confidence_results']], ['Answers', ['Which courses should be kept?', 'Which courses need review?', 'Which instructor fits this course?', 'Who should teach a new course?']]] },
+    access: {
+    color: 'var(--purple)',
+    icon: '🚪',
+    title: 'Access + AI Integration Layer',
+    subtitle: 'FastAPI, Streamlit dashboard, Text-to-SQL agent, and AI assistant access.',
+    callout: 'This layer connects trusted database outputs to users. FastAPI serves structured outputs, Streamlit visualizes them, and AI agents answer questions using controlled SQL/tools instead of raw files.',
+    flow: [
+      'PostgreSQL Views / Gold Outputs',
+      'FastAPI',
+      'Streamlit Dashboard',
+      'Text-to-SQL Agent',
+      'AI Assistant',
+      'End Users'
+    ],
+    panels: [
+      [
+        'Blocks Added',
+        [
+          'FastAPI backend layer',
+          'Text-to-SQL agent',
+          'AI agent integration layer',
+          'Streamlit dashboard with Ask AI',
+          'Controlled access to PostgreSQL data',
+          'SQL safety validation and restricted-table blocking'
+        ]
+      ],
+      [
+        'Access Architecture',
+        [
+          '<table class="cloud-map"><thead><tr><th>Component</th><th>Purpose</th><th>Consumes</th></tr></thead><tbody><tr><td>FastAPI</td><td>Serves trusted analytics as JSON</td><td>PostgreSQL views/tables</td></tr><tr><td>Streamlit</td><td>Dashboard and user interface</td><td>PostgreSQL + AI agent result</td></tr><tr><td>Text-to-SQL Agent</td><td>Converts questions into safe SQL</td><td>Approved schema context</td></tr><tr><td>AI Assistant</td><td>Explains results and supports exploration</td><td>SQL outputs / trusted views</td></tr><tr><td>BI Tools</td><td>Power BI / Tableau access</td><td>Gold outputs / API</td></tr></tbody></table>'
+        ]
+      ],
+      [
+        'Security Rules',
+        [
+          'No raw CSV access from AI',
+          'No unrestricted database access',
+          'No access to bronze_instructor_alias_map',
+          'No INSERT, UPDATE, DELETE, DROP, ALTER, or TRUNCATE',
+          'Only SELECT queries allowed',
+          'Only approved tables/views allowed',
+          'Generated SQL is shown for transparency'
+        ]
+      ],
+      [
+        'Why This Layer Matters',
+        [
+          'Turns validated data into usable insight access',
+          'Allows nontechnical users to ask questions',
+          'Keeps AI grounded in structured data',
+          'Supports BI tools and future production applications',
+          'Separates data pipeline, API, dashboard, and AI responsibilities'
+        ]
+      ]
+    ]
+  },
+  'access-api': { color: 'var(--purple)', icon: '🔗', title: 'FastAPI', subtitle: 'Programmatic access for trusted insights.', callout: 'API should become a stable interface over Gold views.', flow: ['Client', 'FastAPI', 'Gold Views', 'JSON Response'], panels: [['Example Endpoints', ['/api/v1/courses/health', '/api/v1/curriculum/review-candidates', '/api/v1/instructors/course-fit', '/api/v1/ask-ai']], ['Rule', ['Return evidence and response_count', 'Filter by department, college, session, delivery', 'Do not return restricted identity data']]] },
+  'access-bi': { color: 'var(--purple)', icon: '📊', title: 'BI Tools', subtitle: 'Power BI / Tableau access.', callout: 'BI tools should connect to curated Gold tables/views only.', flow: ['Gold Views', 'BI Connector', 'Reports'], panels: [['Consumers', ['Power BI', 'Tableau', 'Internal reporting tools']], ['Datasets', ['course health', 'department summaries', 'alerts', 'instructor-course fit']]] },
+  'access-dashboard': { color: 'var(--purple)', icon: '🖥️', title: 'Streamlit Dashboard', subtitle: 'Proof-of-concept visualization.', callout: 'Dashboard is not the product. The product is decision intelligence.', flow: ['Gold Views', 'Streamlit', 'Interactive Filters', 'Decision Pages'], panels: [['Pages', ['Executive summary', 'Course health', 'Curriculum review', 'Instructor-course fit', 'Ask AI']], ['Purpose', ['Show evidence visually', 'Allow drilldown', 'Support interview demo']]] },
+  'access-ai': { color: 'var(--purple)', icon: '🧠', title: 'AI Assistant', subtitle: 'Controlled Text-to-SQL and RAG.', callout: 'The LLM explains trusted results; it does not invent metrics.', flow: ['User Question', 'Intent', 'Approved Query', 'Result Table', 'Explanation'], panels: [['Guardrails', ['Approved tables/views only', 'SELECT only', 'No raw identity map', 'No raw comments', 'Limit rows']], ['Answer Requirements', ['Evidence', 'Response count', 'Confidence', 'Limitations']]] },
+  users: {
+  color: 'var(--blue)',
+  icon: '👥',
+  title: 'End Users / Decision Owners',
+  subtitle: 'Role-based access for academic decision-making.',
+  callout: 'Each user group needs a different level of insight. The system should not expose the same raw feedback data to everyone. Access should match the user’s role, responsibility, and privacy boundary.',
+  flow: [
+    'Faculty',
+    'Department Chairs',
+    'Deans',
+    'Administrators / Institutional Research'
+  ],
+  panels: [
+    [
+      'Access Principle',
+      [
+        'Faculty see their own feedback and improvement signals',
+        'Department chairs see department-level course and instructor-course fit insights',
+        'Deans see college-level patterns and strategic planning outputs',
+        'Administrators and IR teams see pipeline quality, privacy, and university-wide reporting'
+      ]
+    ],
+    [
+      'Decision Support Goals',
+      [
+        '<table class="cloud-map"><thead><tr><th>User Group</th><th>Main Question</th><th>Output Needed</th></tr></thead><tbody><tr><td>Faculty</td><td>How can I improve my course delivery?</td><td>Own feedback, trends, suggestions</td></tr><tr><td>Department Chairs</td><td>Which courses need review and who fits which course?</td><td>Course health, curriculum review, instructor-course fit</td></tr><tr><td>Deans</td><td>Where are college-level risks and investment needs?</td><td>Cross-department patterns, program signals, staffing support</td></tr><tr><td>Admin / IR</td><td>Is the system reliable, private, and auditable?</td><td>Quality reports, audit logs, privacy controls, institutional trends</td></tr></tbody></table>'
+      ]
+    ],
+    [
+      'Security Rule',
+      [
+        'No raw student-identifying comments for general users',
+        'No instructor identity mapping exposed to AI-facing workflows',
+        'No peer-ranking without role-based authorization',
+        'Low sample-size results must show confidence warnings',
+        'AI answers must include evidence, response count, confidence, and limitations'
+      ]
+    ]
+  ]
+},
+
+'user-faculty': {
+  color: 'var(--blue)',
+  icon: '👩‍🏫',
+  title: 'Faculty View',
+  subtitle: 'Individual instructor improvement and course reflection.',
+  callout: 'Faculty should receive actionable feedback about their own teaching and course experience, not raw student-identifying data or unfair peer comparisons.',
+  flow: [
+    'Own Courses',
+    'Aggregated Feedback',
+    'Trends',
+    'Improvement Actions'
+  ],
+  panels: [
+    [
+      'What Faculty Can See',
+      [
+        'Own course feedback summaries',
+        'Own instructor rating trends',
+        'Course/curriculum rating context',
+        'Aggregated redacted comment themes when available',
+        'Suggested areas for improvement',
+        'Response count and confidence level'
+      ]
+    ],
+    [
+      'What Faculty Should Not See',
+      [
+        'Raw student-identifying comments',
+        'Restricted instructor identity mapping',
+        'Unauthorized peer ranking',
+        'Low-sample comparisons without warning',
+        'Unredacted open-ended responses'
+      ]
+    ],
+    [
+      'Example Questions',
+      [
+        'Which areas of my course delivery need improvement?',
+        'Are students rating the course design lower than instruction?',
+        'Did my course feedback improve across sessions?',
+        'What themes appear in redacted comments?'
+      ]
+    ]
+  ]
+},
+
+'user-chairs': {
+  color: 'var(--blue)',
+  icon: '🏢',
+  title: 'Department Chair View',
+  subtitle: 'Department-level course health and instructor-course fit.',
+  callout: 'Department chairs need decision intelligence, not just dashboards. Their main need is to identify courses needing review, understand professor-course fit, and avoid overreacting to low-confidence feedback.',
+  flow: [
+    'Department Courses',
+    'Course Health',
+    'Instructor-Course Fit',
+    'Review Decisions'
+  ],
+  panels: [
+    [
+      'What Chairs Can See',
+      [
+        'Department-level course health',
+        'Curriculum review candidates',
+        'Instructor-course fit signals',
+        'Course rating vs instructor rating gap',
+        'Low-response and low-confidence alerts',
+        'Delivery mode and campus context'
+      ]
+    ],
+    [
+      'Decision Questions',
+      [
+        'Which courses should be kept as-is?',
+        'Which courses need curriculum review?',
+        'Which instructor is strongest for a course type?',
+        'Is the problem course design, instructor fit, or delivery mode?',
+        'Which results are too low-confidence to act on?'
+      ]
+    ],
+    [
+      'Actions Supported',
+      [
+        'Recommend course redesign',
+        'Adjust instructor-course assignment',
+        'Escalate curriculum issues',
+        'Request more data before making decisions',
+        'Compare course performance against department baseline'
+      ]
+    ]
+  ]
+},
+
+'user-deans': {
+  color: 'var(--blue)',
+  icon: '🎓',
+  title: 'Dean / College Leadership View',
+  subtitle: 'College-level academic strategy and planning.',
+  callout: 'Deans need cross-department patterns, curriculum investment signals, and staffing support. They should not be buried in row-level feedback.',
+  flow: [
+    'College View',
+    'Cross-Department Patterns',
+    'Strategic Risks',
+    'Planning Decisions'
+  ],
+  panels: [
+    [
+      'What Deans Can See',
+      [
+        'College-level course performance trends',
+        'Cross-department comparison',
+        'Program-level curriculum risk',
+        'New course planning candidates',
+        'Instructor-course fit patterns across departments',
+        'High-priority review areas'
+      ]
+    ],
+    [
+      'Decision Questions',
+      [
+        'Which departments have repeated course-design concerns?',
+        'Where should curriculum investment go?',
+        'Which courses are strong candidates to keep or expand?',
+        'Which new courses need strongest instructor assignment?',
+        'Are issues isolated or college-wide patterns?'
+      ]
+    ],
+    [
+      'Outputs Needed',
+      [
+        'College summary view',
+        'Department comparison view',
+        'Curriculum review pipeline',
+        'New course planning support',
+        'Confidence and sample-size warnings'
+      ]
+    ]
+  ]
+},
+
+'user-admins': {
+  color: 'var(--blue)',
+  icon: '🏛️',
+  title: 'Administrators / Institutional Research View',
+  subtitle: 'University-wide oversight, privacy, data quality, and reporting.',
+  callout: 'Administrators and Institutional Research teams need confidence in the pipeline itself: data quality, privacy protection, auditability, and university-wide reporting consistency.',
+  flow: [
+    'University Data',
+    'Quality Monitoring',
+    'Privacy Controls',
+    'Institutional Reporting'
+  ],
+  panels: [
+    [
+      'What Admin / IR Can See',
+      [
+        'University-wide feedback trends',
+        'Pipeline audit logs',
+        'Data quality reports',
+        'Missing/invalid rating counts',
+        'Privacy-risk counts',
+        'Backfill and rerun status',
+        'Access-control status'
+      ]
+    ],
+    [
+      'Decision Questions',
+      [
+        'Is the pipeline producing reliable results?',
+        'Are privacy controls working?',
+        'Which data sources have quality issues?',
+        'Are Gold views refreshed and current?',
+        'Which results should be blocked because of low confidence or stale data?'
+      ]
+    ],
+    [
+      'Governance Needs',
+      [
+        'Role-based access control',
+        'Restricted identity mapping',
+        'No raw comments in AI workflows',
+        'Audit trail from insight back to source file',
+        'Failure alerts and quality thresholds',
+        'Backfill support for historical semesters'
+      ]
+    ]
+  ]
+}, controls: {
+  color: 'var(--gray)',
+  icon: '🗂️',
+  title: 'BSA Student Feedback — Repository Structure',
+  subtitle: 'Production repository layout for data, pipelines, API, dashboard, and AI modules.',
+  callout: 'This repository structure keeps the project production-ready: data lifecycle files are separated from SQL objects, Mage pipelines, reusable Python modules, APIs, dashboards, prompts, tests, and infrastructure.',
+  flow: [
+    'Repository Root',
+    'Data Lifecycle',
+    'SQL Objects',
+    'Reusable src Modules',
+    'Platform Surfaces',
+    'Production Controls'
+  ],
+  panels: [
+    [
+      'Repository Structure',
+      [
+        `<div class="repo-wrap">
+
+          <div class="repo-tree">
+            <div class="repo-root">📁 BSA_Student_Feedback/</div>
+            <div class="repo-line">├── <span class="repo-file-red">README.md</span></div>
+            <div class="repo-line">├── <span class="repo-file-yellow">.env</span></div>
+            <div class="repo-line">├── <span class="repo-file-yellow">.gitignore</span></div>
+            <div class="repo-line">├── <span class="repo-file-yellow">pyproject.toml</span></div>
+            <div class="repo-line">├── <span class="repo-file-yellow">requirements.txt</span></div>
+            <div class="repo-line">├── <span class="repo-file-red">docker-compose.yml</span></div>
+            <div class="repo-line">├── <span class="repo-folder">config/</span></div>
+            <div class="repo-line">├── <span class="repo-folder">data/</span></div>
+            <div class="repo-line">│   ├── <span class="repo-folder">raw/</span></div>
+            <div class="repo-line">│   ├── <span class="repo-folder">bronze/</span></div>
+            <div class="repo-line">│   ├── <span class="repo-folder">silver/</span></div>
+            <div class="repo-line">│   ├── <span class="repo-folder">gold/</span></div>
+            <div class="repo-line">│   └── <span class="repo-folder">samples/</span></div>
+            <div class="repo-line">├── <span class="repo-folder">database/</span></div>
+            <div class="repo-line">│   ├── <span class="repo-file-red">schemas/</span></div>
+            <div class="repo-line">│   ├── <span class="repo-file-red">migrations/</span></div>
+            <div class="repo-line">│   ├── <span class="repo-file-red">views/</span></div>
+            <div class="repo-line">│   ├── <span class="repo-file-red">kpis/</span></div>
+            <div class="repo-line">│   └── <span class="repo-file-red">seeds/</span></div>
+            <div class="repo-line">├── <span class="repo-folder">pipelines/</span></div>
+            <div class="repo-line">│   ├── <span class="repo-folder">mage/</span></div>
+            <div class="repo-line">│   └── <span class="repo-folder">scripts/</span></div>
+            <div class="repo-line">├── <span class="repo-folder">src/course_eval_ai/</span></div>
+            <div class="repo-line">│   ├── <span class="repo-folder">core/</span></div>
+            <div class="repo-line">│   ├── <span class="repo-folder">ingestion/</span></div>
+            <div class="repo-line">│   ├── <span class="repo-folder">validation/</span></div>
+            <div class="repo-line">│   ├── <span class="repo-folder">privacy/</span></div>
+            <div class="repo-line">│   ├── <span class="repo-folder">analytics/</span></div>
+            <div class="repo-line">│   ├── <span class="repo-folder">rag/</span></div>
+            <div class="repo-line">│   ├── <span class="repo-folder">agents/</span></div>
+            <div class="repo-line">│   ├── <span class="repo-folder">skills/</span></div>
+            <div class="repo-line">│   └── <span class="repo-folder">utils/</span></div>
+            <div class="repo-line">├── <span class="repo-file-blue">api/</span></div>
+            <div class="repo-line">├── <span class="repo-file-red">dashboard/</span></div>
+            <div class="repo-line">├── <span class="repo-file-purple">models/</span></div>
+            <div class="repo-line">├── <span class="repo-folder">tests/</span></div>
+            <div class="repo-line">├── <span class="repo-file-blue">notebooks/</span></div>
+            <div class="repo-line">├── <span class="repo-file-orange">docs/</span></div>
+            <div class="repo-line">├── <span class="repo-file-purple">infra/</span></div>
+            <div class="repo-line">├── <span class="repo-file-orange">Versions/</span></div>
+            <div class="repo-line">└── <span class="repo-file-red">archive/</span></div>
+          </div>
+
+          <div class="repo-cards">
+
+            <div class="repo-card repo-green">
+              <h4>1) Project Overview</h4>
+              <p>Modular student-feedback analytics repository covering ingestion, validation, privacy, Star Schema analytics, APIs, dashboards, and AI modules.</p>
+            </div>
+
+            <div class="repo-card repo-cyan">
+              <h4>2) Core Areas</h4>
+              <div class="repo-card-grid">
+                <ul>
+                  <li><b>config/</b> — project configuration</li>
+                  <li><b>data/</b> — raw, bronze, silver, gold files</li>
+                  <li><b>database/</b> — schemas, views, KPIs</li>
+                  <li><b>pipelines/</b> — Mage orchestration</li>
+                </ul>
+                <ul>
+                  <li><b>src/</b> — reusable business logic</li>
+                  <li><b>api/</b> — FastAPI application</li>
+                  <li><b>dashboard/</b> — Streamlit UI</li>
+                  <li><b>models/</b> — prompts and AI evaluation</li>
+                </ul>
+              </div>
+            </div>
+
+            <div class="repo-card repo-gold">
+              <h4>3) Data Lifecycle</h4>
+              <ul>
+                <li><b>raw/</b> — incoming source data exactly as collected</li>
+                <li><b>bronze/</b> — cleaned, validated, privacy-safe flat data</li>
+                <li><b>silver/</b> — Star Schema and enriched analytical data</li>
+                <li><b>gold/</b> — curated trusted outputs for API, dashboard, and AI</li>
+                <li><b>samples/</b> — reference/sample datasets</li>
+              </ul>
+            </div>
+
+            <div class="repo-card repo-purple">
+              <h4>4) Implementation Modules</h4>
+              <div class="repo-card-grid">
+                <ul>
+                  <li><b>validation/</b> — quality rules</li>
+                  <li><b>privacy/</b> — pseudonymization and PII masking</li>
+                  <li><b>analytics/</b> — metrics and insight logic</li>
+                  <li><b>rag/</b> — retrieval over redacted comments</li>
+                </ul>
+                <ul>
+                  <li><b>agents/</b> — Text-to-SQL and AI agents</li>
+                  <li><b>skills/</b> — reusable AI skills</li>
+                  <li><b>utils/</b> — shared helpers</li>
+                  <li><b>core/</b> — constants and shared settings</li>
+                </ul>
+              </div>
+            </div>
+
+            <div class="repo-card repo-blue">
+              <h4>5) Platform Surfaces</h4>
+              <div class="repo-card-grid">
+                <ul>
+                  <li><b>api/</b> — FastAPI endpoints</li>
+                  <li><b>dashboard/</b> — Streamlit interface</li>
+                  <li><b>database/</b> — SQL truth layer</li>
+                </ul>
+                <ul>
+                  <li><b>notebooks/</b> — exploration and analysis</li>
+                  <li><b>docs/</b> — architecture and references</li>
+                  <li><b>infra/</b> — Docker/cloud infrastructure</li>
+                </ul>
+              </div>
+            </div>
+
+            <div class="repo-card repo-green">
+              <h4>6) Best Practices</h4>
+              <ul>
+                <li>Keep reusable business logic inside <b>src/</b></li>
+                <li>Use Mage for repeatable orchestration in <b>pipelines/</b></li>
+                <li>Store managed SQL objects in <b>database/</b> as the source of truth</li>
+                <li>Maintain prompts, agent configs, and evaluation in <b>models/</b></li>
+              </ul>
+            </div>
+
+            <div class="repo-card repo-red">
+              <h4>7) Rules</h4>
+              <div class="repo-card-grid">
+                <ul>
+                  <li><b>api/</b> = FastAPI only</li>
+                  <li><b>dashboard/</b> = Streamlit only</li>
+                  <li><b>src/</b> = reusable business logic</li>
+                  <li><b>pipelines/</b> = Mage orchestration</li>
+                </ul>
+                <ul>
+                  <li><b>database/</b> = SQL truth</li>
+                  <li><b>data/</b> = raw/bronze/silver/gold files</li>
+                  <li><b>models/</b> = prompts and AI evaluation</li>
+                  <li><b>archive/</b> = old/retired files only</li>
+                </ul>
+              </div>
+            </div>
+
+          </div>
+        </div>`
+      ],
+      'wide'
+    ]
+  ]
+},
+  'control-audit': { color: 'var(--gray)', icon: '📜', title: 'pipeline_audit_log', subtitle: 'Tracks every pipeline run.', callout: 'Every insight should trace back to a file and pipeline run.', flow: ['Run Starts', 'Rows Counted', 'Layers Refreshed', 'Audit Saved'], panels: [['Fields', ['pipeline_run_id', 'source_file_name', 'source_system', 'ingested_at_utc', 'row_count_raw', 'row_count_bronze', 'row_count_silver', 'row_count_gold']], ['Use', ['Debugging', 'Backfills', 'Evidence lineage']]] },
+  'control-quality': { color: 'var(--gray)', icon: '🧪', title: 'pipeline_quality_report', subtitle: 'Tracks bad or risky data.', callout: 'Bad data should reduce confidence, not silently feed AI answers.', flow: ['Validate', 'Count Issues', 'Report', 'Alert if Needed'], panels: [['Metrics', ['missing_required_columns', 'invalid_rating_count', 'out_of_range_rating_count', 'missing_rating_count', 'duplicate_count', 'low_sample_count', 'privacy_risk_count']], ['Use', ['Confidence scoring', 'Admin warnings', 'Data remediation']]] },
+  'control-failure': { color: 'var(--gray)', icon: '🚨', title: 'pipeline_failure_alerts', subtitle: 'Alerts when the pipeline breaks.', callout: 'A failed Silver or Gold refresh means AI should not answer from stale data.', flow: ['Failure', 'Log Stage', 'Notify', 'Resolve'], panels: [['Fields', ['failed_stage', 'error_message', 'failed_at', 'severity', 'notification_status']], ['Rule', ['Block or warn AI when freshness checks fail']]] },
+  'control-backfill': { color: 'var(--gray)', icon: '🔁', title: 'Backfills', subtitle: 'Reprocess historical files.', callout: 'Backfills let you rerun old semesters after logic changes.', flow: ['Source File / Semester', 'Reprocess', 'Refresh Silver/Gold'], panels: [['Modes', ['Rerun by source file', 'Rerun by semester', 'Rerun by pipeline_run_id']], ['Why', ['Bug fixes', 'Metric changes', 'Historical trend rebuilds']]] },
+  'control-deploy': { color: 'var(--gray)', icon: '🚀', title: 'Deployment', subtitle: 'MVP now, production later.', callout: 'Docker is enough for MVP; Kubernetes/cloud is production direction.', flow: ['Docker MVP', 'Secrets Manager', 'RBAC', 'Monitoring', 'Cloud/Kubernetes'], panels: [['MVP', ['Docker Compose', 'PostgreSQL', 'Mage', 'FastAPI', 'Streamlit']], ['Production', ['Kubernetes', 'managed Postgres', 'secrets manager', 'RBAC', 'observability']]] }
+};
+
+const backdrop = document.getElementById('modalBackdrop');
+const modalTop = document.getElementById('modalTop');
+const modalIcon = document.getElementById('modalIcon');
+const modalTitle = document.getElementById('modalTitle');
+const modalSubtitle = document.getElementById('modalSubtitle');
+const modalBody = document.getElementById('modalBody');
+const closeModalBtn = document.getElementById('closeModal');
+let lastFocus = null;
+
+document.querySelectorAll('[data-modal]').forEach(el => {
+  const key = el.dataset.modal;
+  const label = details[key]?.title || 'Open details';
+  el.setAttribute('aria-label', label);
+});
+
+function renderFlow(items) {
+  if (!items || !items.length) return '';
+  return `<div class="modal-flow">${items.map((item, idx) => `
+    <span class="modal-chip">${item}</span>${idx < items.length - 1 ? '<span class="modal-arrow">→</span>' : ''}
+  `).join('')}</div>`;
+}
+
+function openModal(key) {
+  const item = details[key];
+  if (!item) return;
+  lastFocus = document.activeElement;
+  modalTop.style.background = item.color || 'var(--blue)';
+  modalIcon.textContent = item.icon || 'ℹ️';
+  modalTitle.textContent = item.title || 'Details';
+  modalSubtitle.textContent = item.subtitle || '';
+
+  const panels = (item.panels || []).map(panel => {
+    const hasCustomHtml = panel[1].some(li => String(li).trim().startsWith('<'));
+    const content = panel[1].map(li => {
+      const value = String(li).trim();
+      return value.startsWith('<') ? value : `<li>${li}</li>`;
+    }).join('');
+
+    return `
+      <div class="modal-panel ${panel[2] === 'wide' ? 'wide' : ''}">
+        <h3>${panel[0]}</h3>
+        ${hasCustomHtml ? `<div class="modal-custom-html">${content}</div>` : `<ul>${content}</ul>`}
+      </div>
+    `;
+  }).join('');
+
+  modalBody.innerHTML = `
+    <div class="modal-callout">${item.callout || ''}</div>
+    ${renderFlow(item.flow)}
+    <div class="modal-grid">${panels}</div>
+  `;
+
+  backdrop.classList.add('open');
+  backdrop.setAttribute('aria-hidden', 'false');
+  document.body.classList.add('modal-open');
+  closeModalBtn.focus();
+}
+
+function closeModal() {
+  backdrop.classList.remove('open');
+  backdrop.setAttribute('aria-hidden', 'true');
+  document.body.classList.remove('modal-open');
+  if (lastFocus && typeof lastFocus.focus === 'function') lastFocus.focus();
+}
+
+function getModalTrigger(target) {
+  const trigger = target.closest('[data-modal]');
+  if (!trigger || !document.body.contains(trigger)) return null;
+  return trigger;
+}
+
+// Robust click handling: fixes nested clickable-card glitches.
+document.addEventListener('click', event => {
+  const trigger = getModalTrigger(event.target);
+  if (!trigger) return;
+  event.preventDefault();
+  event.stopPropagation();
+  openModal(trigger.dataset.modal);
+});
+
+// Keyboard support for every interactive block.
+document.addEventListener('keydown', event => {
+  if (event.key === 'Escape' && backdrop.classList.contains('open')) {
+    closeModal();
+    return;
+  }
+
+  if (event.key !== 'Enter' && event.key !== ' ') return;
+  const trigger = getModalTrigger(event.target);
+  if (!trigger) return;
+  event.preventDefault();
+  event.stopPropagation();
+  openModal(trigger.dataset.modal);
+});
+
+closeModalBtn.addEventListener('click', event => {
+  event.preventDefault();
+  event.stopPropagation();
+  closeModal();
+});
+
+backdrop.addEventListener('click', event => {
+  if (event.target === backdrop) closeModal();
+});
+</script>
+</body>
+</html>
