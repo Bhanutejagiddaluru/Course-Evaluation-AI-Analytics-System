@@ -4,6 +4,8 @@ ERP / SIS / LMS / Survey Systems → Integration &amp; Search Layer → Mage AI 
 
 This project converts structured student feedback data from CSV/Excel format into a privacy-safe, validated, analytics-ready system for course evaluation insights.
 
+use this link to see the Whole proeject: https://bhanutejagiddaluru.github.io/Course-Evaluation-AI-Analytics-System/
+
 This submitted version contains a reduced codebase. Non-essential experimental files were removed. The important implementation files, SQL views, API, dashboard, and AI agent are included. Additional setup and architecture notes are available in the `docs/`, `infra/`, `database/`, and `pipelines/` folders.
 
 ---
